@@ -25,7 +25,6 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { calculateEffectivePrice } from "@/services/retailers/offers";
-import { SAMPLE_OFFERS } from "@/data/mockOffers";
 
 export default function ComparePage() {
   const { comparedLaptops, removeLaptop, addLaptop, clearCompare, count } = useCompare();
@@ -318,7 +317,8 @@ export default function ComparePage() {
                     {comparedLaptops.map((laptop) => {
                       const bestOffer = getBestRetailerOffer(laptop);
                       const basePrice = bestOffer ? bestOffer.price : laptop.price;
-                      const calc = calculateEffectivePrice(basePrice, laptop.discountOffers || SAMPLE_OFFERS);
+                      const liveDiscountOffers = (laptop.discountOffers || []).filter((o) => !o.isMock);
+                      const calc = calculateEffectivePrice(basePrice, liveDiscountOffers);
                       return (
                         <td key={laptop.id} className="p-4 sm:p-5 border-l border-surface-800/60">
                           {calc.listedPrice > 0 ? (
@@ -350,7 +350,8 @@ export default function ComparePage() {
                     {comparedLaptops.map((laptop) => {
                       const bestOffer = getBestRetailerOffer(laptop);
                       const basePrice = bestOffer ? bestOffer.price : laptop.price;
-                      const calc = calculateEffectivePrice(basePrice, laptop.discountOffers || SAMPLE_OFFERS);
+                      const liveDiscountOffers = (laptop.discountOffers || []).filter((o) => !o.isMock);
+                      const calc = calculateEffectivePrice(basePrice, liveDiscountOffers);
                       return (
                         <td key={laptop.id} className="p-4 sm:p-5 border-l border-surface-800/60">
                           {calc.listedPrice > 0 ? (

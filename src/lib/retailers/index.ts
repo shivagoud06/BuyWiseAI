@@ -36,7 +36,11 @@ export function getBestRetailerOffer(
   if (!laptop.offers || laptop.offers.length === 0) {
     return null;
   }
-  return getBestListedPriceService(laptop.offers, targetCurrency || laptop.currency, targetCountry);
+  const liveOffers = laptop.offers.filter((o) => !o.isMock && o.source !== "mock");
+  if (liveOffers.length === 0) {
+    return null;
+  }
+  return getBestListedPriceService(liveOffers, targetCurrency || laptop.currency, targetCountry);
 }
 
 /**

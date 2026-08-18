@@ -13,7 +13,8 @@
     "test:phase22": "node scratch/verify-phase22.js",
     "test:phase23": "tsx scratch/verify-phase23.ts",
     "test:phase24": "tsx scratch/verify-phase24.ts",
-    "test:phase25": "tsx scratch/verify-phase25.ts"
+    "test:phase25": "tsx scratch/verify-phase25.ts",
+    "test:phase26": "tsx scratch/verify-phase26.ts"
   },
   "dependencies": {
     "clsx": "^2.1.1",

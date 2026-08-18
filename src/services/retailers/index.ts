@@ -90,12 +90,7 @@ export async function getRetailerOffers(
   const nestedOffers = await Promise.all(offerPromises);
   const rawCombined = nestedOffers.flat();
 
-  // If live adapters returned 0 live offers, fallback to verified product catalog offers
-  if (rawCombined.length === 0 && product.offers && product.offers.length > 0) {
-    return validateRetailerOffers(product.offers, product);
-  }
-
-  // Exact matching & validation pipeline
+  // Exact matching & validation pipeline on live adapter responses
   return validateRetailerOffers(rawCombined, product);
 }
 

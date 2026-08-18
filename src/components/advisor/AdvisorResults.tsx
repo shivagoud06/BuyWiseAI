@@ -32,7 +32,6 @@ import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { WhereToBuy } from "@/components/laptops/WhereToBuy";
 import { calculateEffectivePrice } from "@/services/retailers/offers";
-import { SAMPLE_OFFERS } from "@/data/mockOffers";
 
 interface AdvisorResultsProps {
   results: RecommendationResult[];
@@ -231,17 +230,11 @@ export function AdvisorResults({
       );
     }
 
-    // 4. Neither URL configured (Mock sample state)
+    // 4. Neither URL configured
     return (
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        disabled
-        className="w-full text-[11px] py-1.5 font-semibold shrink-0 border-surface-800 text-surface-400 bg-surface-950/40 opacity-70 cursor-not-allowed justify-center"
-      >
-        <span>Coming soon</span>
-      </Button>
+      <span className="text-[11px] text-surface-500 font-medium block text-center py-1">
+        Retailer pricing unavailable
+      </span>
     );
   };
 
@@ -353,14 +346,15 @@ export function AdvisorResults({
                 </p>
               )}
               {(() => {
-                const effectiveCalc = calculateEffectivePrice(priceToDisplay, laptop.discountOffers || SAMPLE_OFFERS);
+                const liveDiscountOffers = (laptop.discountOffers || []).filter((o) => !o.isMock);
+                const effectiveCalc = calculateEffectivePrice(priceToDisplay, liveDiscountOffers);
                 const hasOfferDiscount = effectiveCalc.savings > 0;
 
                 return (
                   <div className="space-y-1 mt-1.5">
                     <div className="flex flex-wrap items-baseline gap-3">
                       <div>
-                        <span className="text-[10px] text-surface-500 block font-medium">Listed Price</span>
+                        <span className="text-[10px] text-surface-500 block font-medium">Catalog Reference Price</span>
                         <span className="text-xl sm:text-2xl font-bold text-white font-sans">
                           {formatCurrency(priceToDisplay, currencyToDisplay)}
                         </span>
@@ -368,8 +362,8 @@ export function AdvisorResults({
 
                       {hasOfferDiscount && (
                         <div>
-                          <span className="text-[10px] text-brand-400 block font-medium">With Available Offers</span>
-                          <span className="text-xl sm:text-2xl font-extrabold text-brand-300 font-sans">
+                          <span className="text-[10px] text-emerald-400 block font-medium">Pay Now (With Offers)</span>
+                          <span className="text-xl sm:text-2xl font-extrabold text-emerald-300 font-sans">
                             {formatCurrency(effectiveCalc.effectivePrice, currencyToDisplay)}
                           </span>
                         </div>

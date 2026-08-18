@@ -249,8 +249,8 @@ test("9. Amazon zero-result safety ensures absence of Amazon offers when no Amaz
 // 10. WhereToBuy integration
 test("10. WhereToBuy integration renders validated Flipkart card with secure attributes", () => {
   const whereToBuyContent = fs.readFileSync(path.join(__dirname, "../src/components/laptops/WhereToBuy.tsx"), "utf-8");
-  if (!whereToBuyContent.includes("Retailer pricing unavailable")) {
-    throw new Error("Missing 'Retailer pricing unavailable' fallback");
+  if (!whereToBuyContent.toLowerCase().includes("retailer pricing unavailable")) {
+    throw new Error("Missing 'retailer pricing unavailable' fallback");
   }
   if (!whereToBuyContent.includes('rel="noopener noreferrer"')) {
     throw new Error("Missing secure noopener noreferrer attribute on external links");

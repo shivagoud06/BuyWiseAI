@@ -108,7 +108,16 @@ export function validateRetailerOffer(
     issues.push({ field: "lastUpdated", message: "lastUpdated timestamp is required", receivedValue: o.lastUpdated });
   }
 
-  // 8. Exact Product Configuration Matching (if expectedProduct is passed)
+  // 8. Reject mock/sample offers in production validation
+  if (o.isMock || o.source === "mock") {
+    issues.push({
+      field: "source",
+      message: "Mock and sample offers are not permitted as live retailer offers in production",
+      receivedValue: { isMock: o.isMock, source: o.source },
+    });
+  }
+
+  // 9. Exact Product Configuration Matching (if expectedProduct is passed)
   if (expectedProduct && issues.length === 0) {
     const match = matchOfferToProduct(o as RetailerOffer, expectedProduct);
     if (!match.isMatch) {
