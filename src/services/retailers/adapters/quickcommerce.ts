@@ -13,6 +13,9 @@ export interface QuickCommerceConfig {
   isConfigured: boolean;
   endpoint: string;
   defaultPincode: string;
+  defaultLat: number;
+  defaultLon: number;
+  defaultPlatform: string;
 }
 
 /**
@@ -25,6 +28,9 @@ export function getQuickCommerceConfig(): QuickCommerceConfig {
     isConfigured: Boolean(apiKey && apiKey.trim().length > 0),
     endpoint: process.env.QUICKCOMMERCE_API_ENDPOINT || "https://api.quickcommerceapi.com/v1",
     defaultPincode: process.env.QUICKCOMMERCE_DEFAULT_PINCODE || "560001",
+    defaultLat: parseFloat(process.env.QUICKCOMMERCE_DEFAULT_LAT || "12.9716"),
+    defaultLon: parseFloat(process.env.QUICKCOMMERCE_DEFAULT_LON || "77.5946"),
+    defaultPlatform: process.env.QUICKCOMMERCE_DEFAULT_PLATFORM || "Amazon",
   };
 }
 
@@ -35,18 +41,28 @@ export interface RawQuickCommerceProduct {
   id?: string | number;
   name?: string;
   title?: string;
+  product_name?: string;
   price?: number | string;
+  current_price?: number | string;
+  offer_price?: number | string;
   mrp?: number | string | null;
+  original_price?: number | string | null;
   discount?: number | string | null;
   currency?: string;
   deeplink?: string | null;
   url?: string | null;
   link?: string | null;
-  platform?: string;
+  product_url?: string | null;
+  platform?: string | { name?: string; [key: string]: any };
   source?: string;
+  merchant?: string;
+  available?: boolean;
   in_stock?: boolean | string;
   availability?: string;
+  is_available?: boolean;
   image?: string | null;
+  image_url?: string | null;
+  thumbnail?: string | null;
   brand?: string;
   sku?: string;
   seller?: string;
@@ -54,12 +70,25 @@ export interface RawQuickCommerceProduct {
 }
 
 /**
+ * In-memory response cache to protect limited API credits and prevent redundant calls
+ */
+const apiCache = new Map<string, { data: RawQuickCommerceProduct[]; timestamp: number }>();
+const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes cache
+
+/**
  * Maps QuickCommerce platform strings to standard BuyWise retailer identifiers
  */
-export function mapPlatformToRetailer(platformStr?: string): { retailerId: RetailerId; retailerName: string } {
-  if (!platformStr) {
+/**
+ * Maps QuickCommerce platform strings to standard BuyWise retailer identifiers
+ */
+export function mapPlatformToRetailer(platformInput?: any): { retailerId: RetailerId; retailerName: string } {
+  if (!platformInput) {
     return { retailerId: "quickcommerce", retailerName: "QuickCommerce" };
   }
+
+  const platformStr = typeof platformInput === "object" && platformInput !== null
+    ? (platformInput.name || "")
+    : String(platformInput);
 
   const p = platformStr.toLowerCase().trim();
 
@@ -94,10 +123,10 @@ export function mapPlatformToRetailer(platformStr?: string): { retailerId: Retai
     return { retailerId: "dell-store", retailerName: "Dell Official Store" };
   }
 
-  // Preserve platform name for other quickcommerce providers
+  // Preserve platform name for other quickcommerce providers (e.g. BlinkIt, Zepto)
   return {
     retailerId: "quickcommerce",
-    retailerName: platformStr.trim(),
+    retailerName: platformStr.trim() || "QuickCommerce",
   };
 }
 
@@ -126,33 +155,43 @@ export function buildQuickCommerceSearchQuery(product: Laptop): string {
 export function normalizeQuickCommerceItem(item: RawQuickCommerceProduct): RetailerOffer | null {
   if (!item || typeof item !== "object") return null;
 
-  const title = (item.name || item.title || "").trim();
+  const title = (item.title || item.name || item.product_name || "").trim();
   if (!title) return null;
 
-  const rawPrice = item.price;
+  const rawPrice = item.offer_price ?? item.price ?? item.current_price;
   const parsedPrice = parsePrice(rawPrice);
   if (parsedPrice === null || parsedPrice <= 0) return null;
 
-  const { retailerId, retailerName } = mapPlatformToRetailer(item.platform || item.source);
+  const rawMrp = item.mrp ?? item.original_price;
+  const parsedMrp = parsePrice(rawMrp);
+
+  const { retailerId, retailerName } = mapPlatformToRetailer(item.platform || item.source || item.merchant);
 
   // Availability normalization
   let availability: AvailabilityStatus = "in-stock";
-  if (item.in_stock === false || item.availability === "out-of-stock" || item.availability === "OUT_OF_STOCK") {
+  if (
+    item.available === false ||
+    item.in_stock === false ||
+    item.is_available === false ||
+    item.availability === "out-of-stock" ||
+    item.availability === "OUT_OF_STOCK"
+  ) {
     availability = "out-of-stock";
   } else if (item.availability) {
-    const a = item.availability.toLowerCase();
+    const a = String(item.availability).toLowerCase();
     if (a.includes("limited") || a.includes("few")) availability = "limited-stock";
     else if (a.includes("preorder") || a.includes("pre-order")) availability = "pre-order";
   }
 
-  const productUrl = normalizeUrl(item.deeplink || item.url || item.link);
+  const rawUrl = item.deeplink || item.url || item.link || item.product_url;
+  const productUrl = normalizeUrl(rawUrl);
 
   const rawInput: RawRetailerInput = {
     retailerId,
     retailerName,
     countryCode: "IN",
     price: parsedPrice,
-    mrp: parsePrice(item.mrp),
+    mrp: parsedMrp,
     discount: item.discount !== undefined && item.discount !== null ? parsePrice(item.discount) : null,
     currency: item.currency || "INR",
     productUrl,
@@ -161,7 +200,7 @@ export function normalizeQuickCommerceItem(item: RawQuickCommerceProduct): Retai
     offerText: title,
     source: "official_api",
     isMock: false,
-    matchedSku: item.sku ? String(item.sku) : undefined,
+    matchedSku: item.sku || (item.id ? String(item.id) : undefined),
   };
 
   return normalizeRetailerOffer(rawInput);
@@ -182,7 +221,7 @@ export const QuickCommerceAdapter: RetailerAdapter = {
   isLiveApiConnected: false,
 
   /**
-   * Searches QuickCommerce products across supported platforms
+   * Searches QuickCommerce products across supported platforms (Amazon, Flipkart, etc.)
    */
   searchProducts: async (
     query: string,
@@ -193,28 +232,30 @@ export const QuickCommerceAdapter: RetailerAdapter = {
       return [];
     }
 
+    const platform = options?.platform || config.defaultPlatform;
+    const lat = options?.lat ?? config.defaultLat;
+    const lon = options?.lon ?? config.defaultLon;
+
+    const cacheKey = `${query.toLowerCase().trim()}_${platform}_${lat}_${lon}`;
+    const cached = apiCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+      return cached.data;
+    }
+
     try {
       const url = new URL(`${config.endpoint}/search`);
       url.searchParams.set("q", query);
-
-      if (options?.platform) {
-        url.searchParams.set("platform", options.platform);
-      }
-      if (options?.lat && options?.lon) {
-        url.searchParams.set("lat", options.lat.toString());
-        url.searchParams.set("lon", options.lon.toString());
-      }
-
-      const pincode = options?.pincode || config.defaultPincode;
+      url.searchParams.set("platform", platform);
+      url.searchParams.set("lat", lat.toString());
+      url.searchParams.set("lon", lon.toString());
 
       const headers: Record<string, string> = {
         "X-API-Key": config.apiKey,
         "Accept": "application/json",
-        "x-geolocation-pincode": pincode,
       };
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 4000);
+      const timeoutId = setTimeout(() => controller.abort(), 4500);
 
       const response = await fetch(url.toString(), {
         method: "GET",
@@ -225,26 +266,40 @@ export const QuickCommerceAdapter: RetailerAdapter = {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        // Return empty on API error without crashing
         return [];
       }
 
-      const data = await response.json();
-      
-      // Handles both { results: [...] }, { items: [...] }, and top-level array [...]
-      const itemsList = Array.isArray(data)
-        ? data
-        : Array.isArray(data?.results)
-        ? data.results
-        : Array.isArray(data?.items)
-        ? data.items
-        : Array.isArray(data?.products)
-        ? data.products
+      const responseJson = await response.json();
+
+      // Handles { status: "success", data: { products: [...] } } or { data: [...] } or { products: [...] }
+      const itemsList: RawQuickCommerceProduct[] = Array.isArray(responseJson)
+        ? responseJson
+        : Array.isArray(responseJson?.data?.products)
+        ? responseJson.data.products
+        : Array.isArray(responseJson?.products)
+        ? responseJson.products
+        : Array.isArray(responseJson?.data?.items)
+        ? responseJson.data.items
+        : Array.isArray(responseJson?.items)
+        ? responseJson.items
+        : Array.isArray(responseJson?.data?.results)
+        ? responseJson.data.results
+        : Array.isArray(responseJson?.results)
+        ? responseJson.results
+        : Array.isArray(responseJson?.data)
+        ? responseJson.data
         : [];
 
-      return itemsList;
+      // Attach platform if missing on individual items
+      const enrichedItems = itemsList.map((item) => ({
+        ...item,
+        platform: item.platform || platform,
+      }));
+
+      apiCache.set(cacheKey, { data: enrichedItems, timestamp: Date.now() });
+
+      return enrichedItems;
     } catch {
-      // Safe error isolation
       return [];
     }
   },
@@ -263,15 +318,22 @@ export const QuickCommerceAdapter: RetailerAdapter = {
     }
 
     const searchQuery = buildQuickCommerceSearchQuery(query.product);
-    const rawItems = await QuickCommerceAdapter.searchProducts!(searchQuery);
+    
+    // Fetch from both Amazon and Flipkart platforms separately
+    const [rawAmazonItems, rawFlipkartItems] = await Promise.all([
+      QuickCommerceAdapter.searchProducts!(searchQuery, { platform: "Amazon" }),
+      QuickCommerceAdapter.searchProducts!(searchQuery, { platform: "Flipkart" }),
+    ]);
 
-    if (!Array.isArray(rawItems) || rawItems.length === 0) {
+    const allRawItems = [...rawAmazonItems, ...rawFlipkartItems];
+
+    if (allRawItems.length === 0) {
       return [];
     }
 
     const validatedOffers: RetailerOffer[] = [];
 
-    for (const rawItem of rawItems) {
+    for (const rawItem of allRawItems) {
       const normalized = normalizeQuickCommerceItem(rawItem as RawQuickCommerceProduct);
       if (!normalized) continue;
 

@@ -134,9 +134,9 @@ export function NaturalLanguageInput({
   };
 
   return (
-    <div className="space-y-12 max-w-4xl mx-auto">
+    <div className="space-y-10 sm:space-y-12 max-w-4xl mx-auto px-1 sm:px-0">
       {/* Main Advisor Input Card */}
-      <Card className="p-6 sm:p-9 rounded-3xl border-surface-750 bg-gradient-to-b from-surface-900/95 via-surface-900/90 to-surface-950/95 shadow-2xl backdrop-blur-2xl space-y-6 relative overflow-hidden">
+      <Card className="p-4 sm:p-9 rounded-3xl border-surface-750 bg-gradient-to-b from-surface-900/95 via-surface-900/90 to-surface-950/95 shadow-2xl backdrop-blur-2xl space-y-6 relative overflow-hidden">
         {/* Soft Ambient Glow */}
         <div className="absolute top-0 right-1/4 -z-10 h-32 w-64 rounded-full bg-brand-500/10 blur-3xl pointer-events-none" />
 

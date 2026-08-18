@@ -9,7 +9,11 @@
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "test:phase17": "tsx scratch/verify-phase17.ts",
-    "test:phase18b": "tsx scratch/verify-phase18b.ts"
+    "test:phase18b": "tsx scratch/verify-phase18b.ts",
+    "test:phase22": "node scratch/verify-phase22.js",
+    "test:phase23": "tsx scratch/verify-phase23.ts",
+    "test:phase24": "tsx scratch/verify-phase24.ts",
+    "test:phase25": "tsx scratch/verify-phase25.ts"
   },
   "dependencies": {
     "clsx": "^2.1.1",

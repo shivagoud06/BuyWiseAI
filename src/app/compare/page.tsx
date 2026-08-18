@@ -206,9 +206,15 @@ export default function ComparePage() {
         {/* State 3: 2 or 3 Laptops Selected -> Full Matrix */}
         {count >= 2 && (
           <div className="space-y-8">
-            {/* Table with horizontal scroll */}
+            {/* Mobile swipe helper */}
+            <div className="flex md:hidden items-center justify-between text-[11px] text-surface-400 px-1">
+              <span>Swipe horizontally to compare specs</span>
+              <span className="text-brand-400 font-semibold">→</span>
+            </div>
+
+            {/* Table with horizontal scroll container */}
             <div className="overflow-x-auto rounded-2xl border border-surface-800 bg-surface-900/60 backdrop-blur-xl shadow-2xl">
-              <table className="w-full text-left text-sm border-collapse min-w-[700px]">
+              <table className="w-full text-left text-sm border-collapse min-w-[650px] sm:min-w-[700px]">
                 <thead>
                   <tr className="border-b border-surface-800 bg-surface-950/80">
                     <th className="p-4 sm:p-6 w-1/4 text-xs font-bold uppercase tracking-wider text-surface-400 align-top">

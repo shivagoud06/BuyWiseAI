@@ -141,6 +141,14 @@ export function matchOfferToProduct(offer: RetailerOffer, product: Laptop): Matc
           reasons: ["Product requires RTX 4050 GPU, but offer specifies different RTX tier"],
         };
       }
+
+      if (productGpu.includes("3050") && (offerText.includes("rtx 3060") || offerText.includes("rtx 4050") || offerText.includes("rtx 4060") || offerText.includes("rtx 4070") || offerText.includes("rtx 2050"))) {
+        return {
+          isMatch: false,
+          confidence: "mismatch",
+          reasons: ["Product requires RTX 3050 GPU, but offer specifies different RTX tier"],
+        };
+      }
     }
 
     // 5. Storage Matching Analysis (512GB vs 1TB)

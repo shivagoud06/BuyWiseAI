@@ -119,7 +119,7 @@ export function AdvisorWizard({ initialValues, onSubmit }: AdvisorWizardProps) {
   const progressPercent = (step / 5) * 100;
 
   return (
-    <Card className="p-6 sm:p-10 rounded-3xl border-surface-750 bg-surface-900/85 shadow-2xl backdrop-blur-xl max-w-3xl mx-auto space-y-8">
+    <Card className="p-4 sm:p-10 rounded-3xl border-surface-750 bg-surface-900/85 shadow-2xl backdrop-blur-xl max-w-3xl mx-auto space-y-7 sm:space-y-8">
       {/* Top Step Counter & Progress Bar */}
       <div className="space-y-3">
         <div className="flex items-center justify-between text-xs font-semibold">

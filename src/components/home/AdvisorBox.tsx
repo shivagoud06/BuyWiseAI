@@ -55,8 +55,8 @@ export function AdvisorBox() {
 
   return (
     <section id="advisor-box" className="py-6 sm:py-10">
-      <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-        <Card className="p-6 sm:p-8 md:p-10 rounded-3xl border-surface-750/90 bg-surface-900/80 shadow-2xl backdrop-blur-xl space-y-8">
+      <div className="mx-auto max-w-4xl px-3 sm:px-6 lg:px-8">
+        <Card className="p-4 sm:p-8 md:p-10 rounded-3xl border-surface-750/90 bg-surface-900/80 shadow-2xl backdrop-blur-xl space-y-7 sm:space-y-8">
           {/* Card Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-surface-800/80">
             <div className="flex items-center gap-2.5">

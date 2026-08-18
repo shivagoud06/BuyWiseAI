@@ -82,7 +82,7 @@ export function InterpretedRequirementsCard({
     : getBudgetLabel(parsed.budget, cur);
 
   return (
-    <Card className="p-6 sm:p-10 rounded-3xl border-brand-500/40 bg-surface-900/90 shadow-2xl backdrop-blur-xl max-w-3xl mx-auto space-y-7 animate-fadeIn">
+    <Card className="p-4 sm:p-10 rounded-3xl border-brand-500/40 bg-surface-900/90 shadow-2xl backdrop-blur-xl max-w-3xl mx-auto space-y-7 animate-fadeIn">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-surface-800">
         <div className="flex items-center gap-2.5">

@@ -285,7 +285,7 @@ export function AdvisorResults({
     return (
       <Card
         key={laptop.id}
-        className={`p-6 sm:p-7 rounded-3xl border ${theme.borderClass} shadow-xl backdrop-blur-xl transition-all space-y-5`}
+        className={`p-4 sm:p-7 rounded-3xl border ${theme.borderClass} shadow-xl backdrop-blur-xl transition-all space-y-5`}
       >
         {/* Card Top: Rank Badge, Brand, Price & BuyWise Match Score */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-surface-800/80">

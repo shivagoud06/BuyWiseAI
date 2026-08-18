@@ -72,10 +72,12 @@ async function runLiveSmokeTest() {
     if (items.length > 0) {
       console.log("\nSample Normalized Item Summaries (Safe Fields Only):");
       items.slice(0, 3).forEach((it: any, i: number) => {
-        console.log(`  [Item ${i + 1}] Platform: ${it.platform || it.source || "Marketplace"}`);
+        const platformName = typeof it.platform === "object" && it.platform !== null ? it.platform.name : (it.platform || it.source || "Amazon");
+        const priceVal = it.offer_price ?? it.price ?? it.current_price;
+        console.log(`  [Item ${i + 1}] Platform: ${platformName}`);
         console.log(`           Title   : ${it.name || it.title || "N/A"}`);
-        console.log(`           Price   : ₹${it.price || "N/A"}`);
-        console.log(`           In Stock: ${it.in_stock !== false ? "Yes" : "No"}`);
+        console.log(`           Price   : ₹${priceVal ? Number(priceVal).toLocaleString("en-IN") : "N/A"}`);
+        console.log(`           In Stock: ${it.available !== false && it.in_stock !== false ? "Yes" : "No"}`);
       });
     } else {
       console.log("✓ API returned 0 matching live items for this specific query at this time (empty response handled safely)");

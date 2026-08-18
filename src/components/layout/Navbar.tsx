@@ -12,11 +12,11 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-surface-800/80 bg-surface-950/85 backdrop-blur-xl transition-all">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-3 sm:px-6 lg:px-8">
         {/* Brand Logo */}
-        <Link href="/" className="group flex items-center gap-2.5 transition-transform">
-          <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-400 via-brand-500 to-brand-700 shadow-md shadow-brand-500/20 group-hover:scale-105 transition-all">
-            <Laptop className="h-5 w-5 text-surface-950 stroke-[2.2]" />
+        <Link href="/" className="group flex items-center gap-2 sm:gap-2.5 transition-transform">
+          <div className="relative flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-400 via-brand-500 to-brand-700 shadow-md shadow-brand-500/20 group-hover:scale-105 transition-all">
+            <Laptop className="h-4 w-4 sm:h-5 sm:w-5 text-surface-950 stroke-[2.2]" />
             <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-300 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-400"></span>
@@ -24,10 +24,10 @@ export function Navbar() {
           </div>
           <div className="flex flex-col">
             <div className="flex items-center gap-1">
-              <span className="text-lg font-bold tracking-tight text-white font-sans">BuyWise</span>
-              <span className="text-lg font-extrabold tracking-tight bg-gradient-to-r from-brand-400 to-cyan-400 bg-clip-text text-transparent">AI</span>
+              <span className="text-base sm:text-lg font-bold tracking-tight text-white font-sans">BuyWise</span>
+              <span className="text-base sm:text-lg font-extrabold tracking-tight bg-gradient-to-r from-brand-400 to-cyan-400 bg-clip-text text-transparent">AI</span>
             </div>
-            <span className="text-[10px] text-surface-400 font-medium tracking-wide uppercase">Laptop Buying Copilot</span>
+            <span className="hidden xs:block text-[9px] sm:text-[10px] text-surface-400 font-medium tracking-wide uppercase">Laptop Buying Copilot</span>
           </div>
         </Link>
 
