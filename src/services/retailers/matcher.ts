@@ -46,10 +46,35 @@ export function matchOfferToProduct(offer: RetailerOffer, product: Laptop): Matc
     }
   }
 
-  // 3. RAM Size Matching Analysis
+  // 3. Model Family & Series Consistency Check
   const offerText = (offer.offerText || "").toLowerCase();
-  
+
   if (offerText.length > 0) {
+    const productNameLower = product.name.toLowerCase();
+    const knownFamilies = [
+      "victus", "omen", "pavilion", "spectre", "envy", "probook", "elitebook",
+      "loq", "legion", "ideapad", "thinkpad", "yoga",
+      "tuf", "rog", "zenbook", "vivobook", "expertbook",
+      "aspire", "predator", "nitro", "swift", "travelmate",
+      "macbook air", "macbook pro",
+      "inspiron", "xps", "alienware", "vostro", "latitude",
+      "katana", "cyborg", "stealth", "raider", "bravo", "modern", "prestige"
+    ];
+
+    for (const family of knownFamilies) {
+      if (productNameLower.includes(family) && !offerText.includes(family)) {
+        const otherFamily = knownFamilies.find((f) => f !== family && offerText.includes(f));
+        if (otherFamily) {
+          return {
+            isMatch: false,
+            confidence: "mismatch",
+            reasons: [`Model series mismatch: product is ${family}, but offer mentions ${otherFamily}`],
+          };
+        }
+      }
+    }
+
+    // 4. RAM Size Matching Analysis
     const has8Gb = offerText.includes("8gb ram") || offerText.includes("8 gb ram") || (offerText.includes("8gb") && !offerText.includes("rtx") && !offerText.includes("vram") && !offerText.includes("graphics") && !offerText.includes("gpu"));
     const has16Gb = offerText.includes("16gb") || offerText.includes("16 gb");
     const has32Gb = offerText.includes("32gb") || offerText.includes("32 gb");

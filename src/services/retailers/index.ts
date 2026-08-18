@@ -94,6 +94,83 @@ export async function getRetailerOffers(
   return validateRetailerOffers(rawCombined, product);
 }
 
+export type RetailerButtonState = "BUY_NOW" | "NOT_AVAILABLE" | "COMING_SOON";
+
+export interface RetailerOfferStatusResult {
+  status: RetailerButtonState;
+  buttonLabel: string;
+  isClickable: boolean;
+  targetUrl: string | null;
+  clickType: "affiliate" | "product" | null;
+}
+
+/**
+ * Central Retailer Status Priority Engine
+ * Priority:
+ * 1. Exact validated live offer + in_stock + valid positive price + valid URL -> BUY NOW
+ * 2. Exact validated live offer + out_of_stock -> NOT AVAILABLE
+ * 3. No validated live offer from that retailer/platform -> COMING SOON
+ *
+ * CRITICAL RULE: The retailer's registry connectionStatus NEVER overrides a validated live RetailerOffer.
+ */
+export function resolveRetailerOfferStatus(offer?: RetailerOffer | null): RetailerOfferStatusResult {
+  if (!offer || offer.isMock || offer.source === "mock") {
+    return {
+      status: "COMING_SOON",
+      buttonLabel: "COMING SOON",
+      isClickable: false,
+      targetUrl: null,
+      clickType: null,
+    };
+  }
+
+  // 2. Out of stock live offer -> NOT AVAILABLE
+  if (offer.availability === "out-of-stock") {
+    return {
+      status: "NOT_AVAILABLE",
+      buttonLabel: "NOT AVAILABLE",
+      isClickable: false,
+      targetUrl: null,
+      clickType: null,
+    };
+  }
+
+  const isValidUrl = (url?: string | null): boolean => {
+    if (!url || typeof url !== "string" || url.trim().length === 0) return false;
+    try {
+      const u = new URL(url);
+      return u.protocol === "http:" || u.protocol === "https:";
+    } catch {
+      return url.startsWith("http://") || url.startsWith("https://");
+    }
+  };
+
+  const hasValidAffiliateUrl = isValidUrl(offer.affiliateUrl);
+  const hasValidProductUrl = isValidUrl(offer.productUrl);
+  const targetUrl = hasValidAffiliateUrl ? offer.affiliateUrl! : hasValidProductUrl ? offer.productUrl! : null;
+  const clickType = hasValidAffiliateUrl ? "affiliate" : hasValidProductUrl ? "product" : null;
+
+  // 1. Exact validated live offer + in_stock + valid positive price + valid URL -> BUY NOW
+  if (targetUrl && offer.price && offer.price > 0) {
+    return {
+      status: "BUY_NOW",
+      buttonLabel: "BUY NOW →",
+      isClickable: true,
+      targetUrl,
+      clickType,
+    };
+  }
+
+  // 3. No valid URL or unpriced -> COMING SOON
+  return {
+    status: "COMING_SOON",
+    buttonLabel: "COMING SOON",
+    isClickable: false,
+    targetUrl: null,
+    clickType: null,
+  };
+}
+
 /**
  * Central Retailer Service Layer
  * Clean interface for querying adapters, registry metadata, and normalized offers.
@@ -114,4 +191,5 @@ export const retailerService = {
   getBestListedPrice,
   getRetailerInfo,
   getRetailersForCountry,
+  resolveRetailerOfferStatus,
 };

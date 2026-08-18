@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Laptop, RetailerOffer, RetailerSortOption, CurrencyCode } from "@/types";
 import { formatCurrency } from "@/lib/utils";
 import { sortRetailerOffers, handleRetailerClick } from "@/lib/retailers";
-import { validateRetailerOffers, getBestListedPrice, getRetailerInfo } from "@/services/retailers";
+import { validateRetailerOffers, getBestListedPrice, getRetailerInfo, resolveRetailerOfferStatus } from "@/services/retailers";
 import {
   Sparkles,
   Info,
@@ -46,6 +46,16 @@ export function WhereToBuy({
   const sortedOffers = sortRetailerOffers(validatedOffers, sortOption);
   const bestOffer = getBestListedPrice(validatedOffers, effectiveCurrency);
 
+  const isValidUrl = (url?: string | null): boolean => {
+    if (!url || typeof url !== "string" || url.trim().length === 0) return false;
+    try {
+      const u = new URL(url);
+      return u.protocol === "http:" || u.protocol === "https:";
+    } catch {
+      return url.startsWith("http://") || url.startsWith("https://");
+    }
+  };
+
   const getAvailabilityBadge = (status: RetailerOffer["availability"]) => {
     switch (status) {
       case "in-stock":
@@ -74,46 +84,20 @@ export function WhereToBuy({
         return (
           <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-400 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-md">
             <XCircle className="h-3 w-3" />
-            OUT OF STOCK
+            NOT AVAILABLE
           </span>
         );
     }
   };
 
   const renderActionButton = (offer: RetailerOffer) => {
-    // 2. VERIFIED LIVE + OUT OF STOCK -> Show "OUT OF STOCK" (No BUY NOW)
-    if (offer.availability === "out-of-stock") {
-      return (
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled
-          className="text-xs font-semibold shrink-0 border-surface-800 text-surface-500 opacity-60 cursor-not-allowed w-full sm:w-auto justify-center"
-        >
-          <span>OUT OF STOCK</span>
-        </Button>
-      );
-    }
+    const statusResult = resolveRetailerOfferStatus(offer);
 
-    const hasValidAffiliateUrl =
-      offer.affiliateUrl &&
-      offer.affiliateUrl.trim().length > 0 &&
-      (offer.affiliateUrl.startsWith("http://") || offer.affiliateUrl.startsWith("https://"));
-
-    const hasValidProductUrl =
-      offer.productUrl &&
-      offer.productUrl.trim().length > 0 &&
-      (offer.productUrl.startsWith("http://") || offer.productUrl.startsWith("https://"));
-
-    const targetUrl = hasValidAffiliateUrl ? offer.affiliateUrl! : hasValidProductUrl ? offer.productUrl! : null;
-    const clickType = hasValidAffiliateUrl ? "affiliate" : "product";
-
-    // 1. VERIFIED LIVE + AVAILABLE + VALID URL -> Show "BUY NOW" & open authentic retailer URL
-    if (targetUrl) {
+    // 1. BUY NOW (Clickable authentic deeplink)
+    if (statusResult.status === "BUY_NOW" && statusResult.targetUrl) {
       return (
         <a
-          href={targetUrl}
+          href={statusResult.targetUrl}
           target="_blank"
           rel="noopener noreferrer"
           onClick={() =>
@@ -123,8 +107,8 @@ export function WhereToBuy({
               retailerId: offer.retailerId,
               retailerName: offer.retailerName,
               price: offer.price,
-              targetUrl,
-              clickType,
+              targetUrl: statusResult.targetUrl!,
+              clickType: statusResult.clickType || "product",
               timestamp: new Date().toISOString(),
               source: "product_page",
             })
@@ -137,7 +121,22 @@ export function WhereToBuy({
       );
     }
 
-    // 3. RETAILER SUPPORTED BUT NO LIVE DATA SOURCE YET -> Show "COMING SOON" (Unclickable, no fake URL)
+    // 2. NOT AVAILABLE (Disabled out-of-stock button)
+    if (statusResult.status === "NOT_AVAILABLE") {
+      return (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled
+          className="text-xs font-semibold shrink-0 border-surface-800 text-surface-500 opacity-60 cursor-not-allowed w-full sm:w-auto justify-center"
+        >
+          <span>NOT AVAILABLE</span>
+        </Button>
+      );
+    }
+
+    // 3. COMING SOON (Disabled unlinked button)
     return (
       <Button
         type="button"

@@ -193,8 +193,22 @@ export interface Laptop {
   sourceUrl?: string | null;
   lastVerified?: string; // e.g. "2026-08-18"
   dataStatus: DataStatusType; // "verified" | "partially-verified"
+  isUpcoming?: boolean; // True for announced/unreleased laptops
+  expectedLaunch?: string; // e.g. "Q4 2026", "Late 2026"
+  launchStatus?: "released" | "upcoming" | "announced";
   offers?: RetailerOffer[]; // Multi-retailer store offers
   discountOffers?: DiscountOffer[]; // Verified bank, coupon & cashback offers
+}
+
+export interface SmartSearchResult {
+  exactMatches: Laptop[];
+  fallbackMatches: Laptop[];
+  upcomingMatches: Laptop[];
+  isFallback: boolean;
+  fallbackReason: string | null;
+  hasBroadSuggestions: boolean;
+  broadSuggestions: string[];
+  totalAvailableCount: number;
 }
 
 export type PriceRangeFilter = "under-40k" | "40k-50k" | "50k-75k" | "75k-100k" | "above-100k";
