@@ -158,8 +158,8 @@ export function AdvisorResults({
     }
   };
 
-  const renderRetailerButton = (offer: RetailerOffer, laptopId: string, laptopName: string) => {
-    // 1. Out of stock
+  const renderActionButton = (offer: RetailerOffer, laptopId: string, laptopName: string) => {
+    // 2. Out of stock offers
     if (offer.availability === "out-of-stock") {
       return (
         <Button
@@ -169,16 +169,29 @@ export function AdvisorResults({
           disabled
           className="w-full text-[11px] py-1.5 font-semibold shrink-0 border-surface-800 text-surface-500 opacity-60 cursor-not-allowed justify-center"
         >
-          <span>Out of Stock</span>
+          <span>NOT AVAILABLE</span>
         </Button>
       );
     }
 
-    // 2. Affiliate URL available
-    if (offer.affiliateUrl && offer.affiliateUrl.trim().length > 0) {
+    const hasValidAffiliateUrl =
+      offer.affiliateUrl &&
+      offer.affiliateUrl.trim().length > 0 &&
+      (offer.affiliateUrl.startsWith("http://") || offer.affiliateUrl.startsWith("https://"));
+
+    const hasValidProductUrl =
+      offer.productUrl &&
+      offer.productUrl.trim().length > 0 &&
+      (offer.productUrl.startsWith("http://") || offer.productUrl.startsWith("https://"));
+
+    const targetUrl = hasValidAffiliateUrl ? offer.affiliateUrl! : hasValidProductUrl ? offer.productUrl! : null;
+    const clickType = hasValidAffiliateUrl ? "affiliate" : "product";
+
+    // 1. Valid live URL -> BUY NOW
+    if (targetUrl) {
       return (
         <a
-          href={offer.affiliateUrl}
+          href={targetUrl}
           target="_blank"
           rel="noopener noreferrer"
           onClick={() =>
@@ -188,53 +201,31 @@ export function AdvisorResults({
               retailerId: offer.retailerId,
               retailerName: offer.retailerName,
               price: offer.price,
-              targetUrl: offer.affiliateUrl!,
-              clickType: "affiliate",
+              targetUrl,
+              clickType,
               timestamp: new Date().toISOString(),
               source: "advisor",
             })
           }
           className="w-full inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl text-[11px] font-bold text-surface-950 bg-brand-500 hover:bg-brand-400 shadow-sm transition-all shrink-0"
         >
-          <span>Buy on {offer.retailerName}</span>
+          <span>BUY NOW →</span>
           <ExternalLink className="h-3 w-3 stroke-[2.5]" />
         </a>
       );
     }
 
-    // 3. Direct product URL available
-    if (offer.productUrl && offer.productUrl.trim().length > 0) {
-      return (
-        <a
-          href={offer.productUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={() =>
-            handleRetailerClick({
-              productId: laptopId,
-              productName: laptopName,
-              retailerId: offer.retailerId,
-              retailerName: offer.retailerName,
-              price: offer.price,
-              targetUrl: offer.productUrl!,
-              clickType: "product",
-              timestamp: new Date().toISOString(),
-              source: "advisor",
-            })
-          }
-          className="w-full inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl text-[11px] font-semibold text-surface-200 bg-surface-800 border border-surface-700 hover:bg-surface-750 hover:text-white transition-all shrink-0"
-        >
-          <span>View on {offer.retailerName}</span>
-          <ExternalLink className="h-3 w-3 stroke-[2.2]" />
-        </a>
-      );
-    }
-
-    // 4. Neither URL configured
+    // 3. Supported retailer without live URL
     return (
-      <span className="text-[11px] text-surface-500 font-medium block text-center py-1">
-        Retailer pricing unavailable
-      </span>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        disabled
+        className="w-full text-[11px] py-1.5 font-semibold shrink-0 border-surface-800 text-surface-400 bg-surface-900/60 opacity-80 cursor-not-allowed justify-center"
+      >
+        <span>COMING SOON</span>
+      </Button>
     );
   };
 

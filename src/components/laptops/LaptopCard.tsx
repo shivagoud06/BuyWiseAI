@@ -207,7 +207,14 @@ export function LaptopCard({ laptop }: LaptopCardProps) {
         {/* Price (Inter 700) */}
         <div className="flex items-baseline justify-between mb-4">
           <div>
-            {laptop.price && laptop.price > 0 ? (
+            {laptop.isUpcoming ? (
+              <div className="space-y-0.5">
+                <span className="text-sm font-bold text-amber-400 font-sans">
+                  Expected {laptop.expectedLaunch || "Soon"}
+                </span>
+                <p className="text-[10px] text-surface-400">Official launch pending</p>
+              </div>
+            ) : laptop.price && laptop.price > 0 ? (
               <>
                 <div className="text-xl sm:text-2xl font-bold text-white tracking-tight font-sans">
                   {formatINR(laptop.price)}
@@ -226,7 +233,7 @@ export function LaptopCard({ laptop }: LaptopCardProps) {
             )}
           </div>
           <div className="text-[10px] text-surface-400 uppercase tracking-wider font-semibold">
-            INR Price
+            {laptop.isUpcoming ? "Status" : "INR Price"}
           </div>
         </div>
 

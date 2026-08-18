@@ -6,6 +6,7 @@ import { LAPTOPS } from "@/data/laptops";
 import { FilterState, Laptop, PriceRangeFilter, SortOption, UseCaseType } from "@/types";
 import { LaptopFilters } from "@/components/laptops/LaptopFilters";
 import { LaptopGrid } from "@/components/laptops/LaptopGrid";
+import { findSmartSearchResults } from "@/lib/smartSearch";
 import {
   Search,
   SlidersHorizontal,
@@ -71,117 +72,13 @@ function LaptopFinderContent() {
     setSortOption("recommended");
   };
 
-  // Instant Filter & Sort Engine
-  const filteredLaptops = useMemo(() => {
-    return LAPTOPS.filter((laptop) => {
-      // 1. Search Query: Laptop name, fullName, model, sku, brand, processor, gpu, battery
-      if (filters.searchQuery.trim()) {
-        const q = filters.searchQuery.toLowerCase().trim();
-        const matchesName = laptop.name.toLowerCase().includes(q);
-        const matchesFullName = laptop.fullName.toLowerCase().includes(q);
-        const matchesModel = laptop.model.toLowerCase().includes(q);
-        const matchesSku = laptop.sku?.toLowerCase().includes(q) || false;
-        const matchesBrand = laptop.brand.toLowerCase().includes(q);
-        const matchesProc = laptop.processor.toLowerCase().includes(q);
-        const matchesProcFamily = laptop.processorFamily.toLowerCase().includes(q);
-        const matchesGpu = laptop.gpu.toLowerCase().includes(q);
-        const matchesBattery = laptop.battery.toLowerCase().includes(q);
-        if (
-          !matchesName &&
-          !matchesFullName &&
-          !matchesModel &&
-          !matchesSku &&
-          !matchesBrand &&
-          !matchesProc &&
-          !matchesProcFamily &&
-          !matchesGpu &&
-          !matchesBattery
-        ) {
-          return false;
-        }
-      }
-
-      // 2. Brand Filter
-      if (filters.brands.length > 0 && !filters.brands.includes(laptop.brand)) {
-        return false;
-      }
-
-      // 3. Price Ranges (INR)
-      if (filters.priceRanges.length > 0) {
-        if (laptop.price === null || laptop.price <= 0) return false;
-        const matchesPrice = filters.priceRanges.some((range) => {
-          switch (range) {
-            case "under-40k":
-              return laptop.price! < 40000;
-            case "40k-50k":
-              return laptop.price! >= 40000 && laptop.price! <= 50000;
-            case "50k-75k":
-              return laptop.price! >= 50000 && laptop.price! <= 75000;
-            case "75k-100k":
-              return laptop.price! >= 75000 && laptop.price! <= 100000;
-            case "above-100k":
-              return laptop.price! > 100000;
-            default:
-              return true;
-          }
-        });
-        if (!matchesPrice) return false;
-      }
-
-      // 4. RAM Sizes
-      if (filters.ramSizes.length > 0 && !filters.ramSizes.includes(laptop.ramSize)) {
-        return false;
-      }
-
-      // 5. Processor Families
-      if (
-        filters.processorFamilies.length > 0 &&
-        !filters.processorFamilies.includes(laptop.processorFamily)
-      ) {
-        return false;
-      }
-
-      // 6. GPU Categories
-      if (
-        filters.gpuCategories.length > 0 &&
-        !filters.gpuCategories.includes(laptop.gpuCategory)
-      ) {
-        return false;
-      }
-
-      // 7. Use Cases
-      if (
-        filters.useCases.length > 0 &&
-        !filters.useCases.some((uc) => laptop.useCases.includes(uc))
-      ) {
-        return false;
-      }
-
-      return true;
-    }).sort((a, b) => {
-      const priceA = a.price ?? 999999999;
-      const priceB = b.price ?? 999999999;
-
-      switch (sortOption) {
-        case "recommended":
-        case "best-match":
-          return b.buyWiseScore - a.buyWiseScore;
-        case "lowest-listed-price":
-        case "price-asc":
-          return priceA - priceB;
-        case "price-desc":
-          return priceB - priceA;
-        case "score-desc":
-          return b.buyWiseScore - a.buyWiseScore;
-        case "best-value":
-          return b.scoreBreakdown.priceValue - a.scoreBreakdown.priceValue;
-        case "rating-desc":
-          return b.rating - a.rating;
-        default:
-          return 0;
-      }
-    });
+  // Instant Smart Search & Proximity Fallback Engine
+  const searchResult = useMemo(() => {
+    return findSmartSearchResults(LAPTOPS, filters, sortOption);
   }, [filters, sortOption]);
+
+  const displayedLaptops = searchResult.exactMatches.length > 0 ? searchResult.exactMatches : searchResult.fallbackMatches;
+  const availableCatalogCount = LAPTOPS.filter((l) => !l.isUpcoming).length;
 
   const activeFilterCount =
     filters.brands.length +
@@ -253,7 +150,7 @@ function LaptopFinderContent() {
 
             {/* Laptop Count Indicator */}
             <span className="text-xs sm:text-sm text-surface-400 font-medium ml-1">
-              Showing <strong className="text-white font-semibold">{filteredLaptops.length}</strong> of {LAPTOPS.length} verified laptops
+              Showing <strong className="text-white font-semibold">{displayedLaptops.length}</strong> {searchResult.isFallback ? "closest alternatives " : ""}of {availableCatalogCount} verified laptops
             </span>
 
             {/* Clear all active filters */}
@@ -314,7 +211,7 @@ function LaptopFinderContent() {
                 filters={filters}
                 onChange={setFilters}
                 onReset={handleResetFilters}
-                totalResults={filteredLaptops.length}
+                totalResults={displayedLaptops.length}
               />
             </div>
           </aside>
@@ -322,10 +219,16 @@ function LaptopFinderContent() {
           {/* Product Grid / Empty State */}
           <main className="lg:col-span-3">
             <LaptopGrid
-              laptops={filteredLaptops}
+              laptops={displayedLaptops}
+              upcomingLaptops={searchResult.upcomingMatches}
+              isFallback={searchResult.isFallback}
+              fallbackReason={searchResult.fallbackReason}
+              hasBroadSuggestions={searchResult.hasBroadSuggestions}
+              broadSuggestions={searchResult.broadSuggestions}
               sortOption={sortOption}
               onSortChange={setSortOption}
               onResetFilters={handleResetFilters}
+              onSelectSuggestion={(sug) => setFilters((prev) => ({ ...prev, searchQuery: sug }))}
             />
           </main>
         </div>
@@ -365,7 +268,7 @@ function LaptopFinderContent() {
                   filters={filters}
                   onChange={setFilters}
                   onReset={handleResetFilters}
-                  totalResults={filteredLaptops.length}
+                  totalResults={displayedLaptops.length}
                 />
               </div>
 
@@ -386,7 +289,7 @@ function LaptopFinderContent() {
                   onClick={() => setMobileFilterOpen(false)}
                   className="w-1/2 text-xs font-bold"
                 >
-                  Apply ({filteredLaptops.length})
+                  Apply ({displayedLaptops.length})
                 </Button>
               </div>
             </div>

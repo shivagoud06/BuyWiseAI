@@ -134,17 +134,17 @@ export function mapPlatformToRetailer(platformInput?: any): { retailerId: Retail
  * Constructs a targeted search query for QuickCommerce laptop search
  */
 export function buildQuickCommerceSearchQuery(product: Laptop): string {
-  const parts: string[] = [product.brand];
-  
-  if (product.name) {
-    parts.push(product.name);
+  const brand = (product.brand || "").trim();
+  let name = (product.name || "").trim();
+
+  // Strip repeated brand prefix from name if present to avoid "Acer Acer Aspire..."
+  if (brand && name.toLowerCase().startsWith(brand.toLowerCase())) {
+    name = name.substring(brand.length).trim();
   }
-  if (product.model && !product.name.toLowerCase().includes(product.model.toLowerCase())) {
-    parts.push(product.model);
-  }
-  if (product.ramSize) {
-    parts.push(`${product.ramSize}GB`);
-  }
+
+  const parts: string[] = [];
+  if (brand) parts.push(brand);
+  if (name) parts.push(name);
 
   return parts.join(" ").trim();
 }

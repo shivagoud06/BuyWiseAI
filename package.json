@@ -16,7 +16,8 @@
     "test:phase25": "tsx scratch/verify-phase25.ts",
     "test:phase26": "tsx scratch/verify-phase26.ts",
     "test:phase26c": "tsx scratch/verify-phase26c.ts",
-    "test:phase27a": "tsx scratch/verify-phase27a.ts"
+    "test:phase27a": "tsx scratch/verify-phase27a.ts",
+    "test:catalog": "tsx scratch/verify-catalog-render.ts"
   },
   "dependencies": {
     "clsx": "^2.1.1",
