@@ -21,6 +21,7 @@ interface LaptopGridProps {
   upcomingLaptops?: Laptop[];
   isFallback?: boolean;
   fallbackReason?: string | null;
+  fallbackExplanations?: Record<string, string>;
   hasBroadSuggestions?: boolean;
   broadSuggestions?: string[];
   sortOption: SortOption;
@@ -34,6 +35,7 @@ export function LaptopGrid({
   upcomingLaptops = [],
   isFallback = false,
   fallbackReason,
+  fallbackExplanations,
   hasBroadSuggestions = false,
   broadSuggestions = [],
   sortOption,
@@ -137,7 +139,11 @@ export function LaptopGrid({
         /* Laptop Cards Grid */
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {laptops.map((laptop) => (
-            <LaptopCard key={laptop.id} laptop={laptop} />
+            <LaptopCard
+              key={laptop.id}
+              laptop={laptop}
+              fallbackExplanation={isFallback ? fallbackExplanations?.[laptop.id] : undefined}
+            />
           ))}
         </div>
       )}

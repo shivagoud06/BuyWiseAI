@@ -286,6 +286,11 @@ export function getLaptopRecommendations(
   const candidatePool: EvaluatedCandidate[] = [];
 
   for (const laptop of laptops) {
+    // Upcoming / unreleased laptops must never be recommended as currently purchasable products
+    if (laptop.isUpcoming) {
+      continue;
+    }
+
     let effectivePrice: number | null = null;
     let effectiveOffers: RetailerOffer[] = [];
 

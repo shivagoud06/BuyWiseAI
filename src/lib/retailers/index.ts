@@ -1,5 +1,6 @@
 import { Laptop, RetailerOffer, RetailerSortOption, RetailerId, CurrencyCode, CountryCode } from "@/types";
 import { getBestListedPrice as getBestListedPriceService } from "@/services/retailers/priceComparison";
+import { recordRetailerClick } from "@/services/retailers/affiliateResolver";
 
 export * from "@/services/retailers";
 
@@ -19,9 +20,7 @@ export interface RetailerClickEvent {
  * Tracking abstraction for outgoing retailer clicks.
  */
 export function handleRetailerClick(event: RetailerClickEvent): void {
-  if (process.env.NODE_ENV !== "production") {
-    // console.debug("[Retailer Click Event]:", event);
-  }
+  recordRetailerClick(event);
 }
 
 /**

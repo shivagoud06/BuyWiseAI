@@ -342,11 +342,20 @@ export function findSmartSearchResults(
     .sort((a, b) => b.score - a.score || b.laptop.buyWiseScore - a.laptop.buyWiseScore);
 
   const fallbackMatches = scoredLaptops.slice(0, 6).map((item) => item.laptop);
+  const fallbackExplanations: Record<string, string> = {};
+  scoredLaptops.slice(0, 6).forEach((item) => {
+    if (item.reasons.length > 0) {
+      fallbackExplanations[item.laptop.id] = item.reasons.slice(0, 2).join(", ") + ".";
+    } else {
+      fallbackExplanations[item.laptop.id] = `${item.laptop.brand} alternative for ${item.laptop.useCases[0] || "Everyday"} workloads.`;
+    }
+  });
 
   if (fallbackMatches.length > 0) {
     return {
       exactMatches: [],
       fallbackMatches,
+      fallbackExplanations,
       upcomingMatches: relevantUpcoming,
       isFallback: true,
       fallbackReason: "Exact model unavailable. These are the closest available alternatives.",

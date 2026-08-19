@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Laptop } from "@/types";
+import { Laptop, RetailerOffer } from "@/types";
 import { formatINR } from "@/lib/utils";
 import { useCompare } from "@/context/CompareContext";
 import {
@@ -37,9 +37,10 @@ import { getBestRetailerOffer } from "@/lib/retailers";
 
 interface LaptopClientDetailsProps {
   laptop: Laptop;
+  initialOffers?: RetailerOffer[];
 }
 
-export function LaptopClientDetails({ laptop }: LaptopClientDetailsProps) {
+export function LaptopClientDetails({ laptop, initialOffers }: LaptopClientDetailsProps) {
   const searchParams = useSearchParams();
   const { isComparing, toggleLaptop } = useCompare();
   const compared = isComparing(laptop.id);
@@ -193,7 +194,7 @@ export function LaptopClientDetails({ laptop }: LaptopClientDetailsProps) {
           <div className="p-4 sm:p-5 rounded-2xl bg-surface-900/60 border border-surface-800 backdrop-blur-sm space-y-2">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="text-xs text-surface-400 uppercase tracking-wider font-semibold">
-                Verified Listed Price
+                {bestOffer ? "Best Verified Live Retailer Price" : "Official Catalog Reference Price"}
               </div>
               {bestOffer && (
                 <span className="text-[11px] font-bold text-brand-300 bg-brand-500/10 border border-brand-500/20 px-2 py-0.5 rounded-md flex items-center gap-1">
@@ -620,7 +621,7 @@ export function LaptopClientDetails({ laptop }: LaptopClientDetailsProps) {
       </section>
 
       {/* Where to Buy (Multi-Retailer Store Offers) */}
-      <WhereToBuy laptop={laptop} />
+      <WhereToBuy laptop={laptop} offers={initialOffers} />
 
       {/* Purchase Modal / Store Notice */}
       {buyModalOpen && (

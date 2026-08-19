@@ -223,6 +223,7 @@ function LaptopFinderContent() {
               upcomingLaptops={searchResult.upcomingMatches}
               isFallback={searchResult.isFallback}
               fallbackReason={searchResult.fallbackReason}
+              fallbackExplanations={searchResult.fallbackExplanations}
               hasBroadSuggestions={searchResult.hasBroadSuggestions}
               broadSuggestions={searchResult.broadSuggestions}
               sortOption={sortOption}

@@ -118,6 +118,8 @@ export interface RetailerOffer {
   currency: CurrencyCode;
   productUrl?: string | null; // Real product URL or null
   affiliateUrl?: string | null; // Real affiliate URL or null
+  trackingProvider?: "amazon_associates" | "flipkart_affiliate" | "ebay_partner_network" | "direct" | string;
+  affiliateEnabled?: boolean;
   availability: AvailabilityStatus;
   lastUpdated: string;
   offerText?: string;
@@ -203,6 +205,7 @@ export interface Laptop {
 export interface SmartSearchResult {
   exactMatches: Laptop[];
   fallbackMatches: Laptop[];
+  fallbackExplanations?: Record<string, string>;
   upcomingMatches: Laptop[];
   isFallback: boolean;
   fallbackReason: string | null;

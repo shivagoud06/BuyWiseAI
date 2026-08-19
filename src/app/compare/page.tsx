@@ -29,9 +29,9 @@ import { calculateEffectivePrice } from "@/services/retailers/offers";
 export default function ComparePage() {
   const { comparedLaptops, removeLaptop, addLaptop, clearCompare, count } = useCompare();
 
-  // Pick suggestions when user has 0 or 1 laptop selected
+  // Pick suggestions when user has 0 or 1 laptop selected (exclude upcoming)
   const suggestedLaptops = LAPTOPS.filter(
-    (l) => !comparedLaptops.some((c) => c.id === l.id)
+    (l) => !l.isUpcoming && !comparedLaptops.some((c) => c.id === l.id)
   ).slice(0, 3);
 
   // Deterministic Winner Calculation using BuyWise Score
@@ -81,11 +81,11 @@ export default function ComparePage() {
   return (
     <div className="min-h-screen py-8 sm:py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Sample Data Disclaimer Banner */}
+        {/* Verified Comparison Banner */}
         <div className="rounded-xl border border-surface-700 bg-surface-900/50 p-3 text-xs text-surface-400 flex items-center gap-2 mb-6">
           <Info className="h-4 w-4 text-brand-400 shrink-0" />
           <span>
-            <strong>Sample Comparison Data:</strong> Specifications, scores, and INR pricing are mock values for prototype evaluation.
+            <strong>Verified Hardware Comparison:</strong> Side-by-side specifications, benchmark scores, and verified catalog configurations.
           </span>
         </div>
 

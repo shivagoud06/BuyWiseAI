@@ -24,9 +24,10 @@ import { Card } from "@/components/ui/Card";
 
 interface LaptopCardProps {
   laptop: Laptop;
+  fallbackExplanation?: string;
 }
 
-export function LaptopCard({ laptop }: LaptopCardProps) {
+export function LaptopCard({ laptop, fallbackExplanation }: LaptopCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const { isComparing, toggleLaptop } = useCompare();
   const compared = isComparing(laptop.id);
@@ -199,6 +200,14 @@ export function LaptopCard({ laptop }: LaptopCardProps) {
               </span>
             ))}
           </div>
+
+          {/* Alternative Explanation Badge if this card is a smart alternative */}
+          {fallbackExplanation && (
+            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-200 font-medium">
+              <Sparkles className="h-3 w-3 text-amber-400 shrink-0" />
+              <span className="truncate">{fallbackExplanation}</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -233,7 +242,7 @@ export function LaptopCard({ laptop }: LaptopCardProps) {
             )}
           </div>
           <div className="text-[10px] text-surface-400 uppercase tracking-wider font-semibold">
-            {laptop.isUpcoming ? "Status" : "INR Price"}
+            {laptop.isUpcoming ? "Status" : "Catalog Ref Price"}
           </div>
         </div>
 

@@ -12,6 +12,7 @@ import { normalizeRetailerOffers } from "./normalizer";
 import { validateRetailerOffers } from "./validator";
 import { getBestListedPrice } from "./priceComparison";
 import { RETAILER_REGISTRY, getRetailerInfo, getRetailersForCountry } from "./registry";
+import { resolveRetailerClickUrl } from "./affiliateResolver";
 
 export * from "./types";
 export * from "./registry";
@@ -22,6 +23,7 @@ export * from "./priceComparison";
 export * from "./offers";
 export * from "./adapters/ebay";
 export * from "./adapters/quickcommerce";
+export * from "./affiliateResolver";
 
 export const ALL_RETAILER_ADAPTERS: RetailerAdapter[] = [
   AmazonAdapter,
@@ -135,20 +137,7 @@ export function resolveRetailerOfferStatus(offer?: RetailerOffer | null): Retail
     };
   }
 
-  const isValidUrl = (url?: string | null): boolean => {
-    if (!url || typeof url !== "string" || url.trim().length === 0) return false;
-    try {
-      const u = new URL(url);
-      return u.protocol === "http:" || u.protocol === "https:";
-    } catch {
-      return url.startsWith("http://") || url.startsWith("https://");
-    }
-  };
-
-  const hasValidAffiliateUrl = isValidUrl(offer.affiliateUrl);
-  const hasValidProductUrl = isValidUrl(offer.productUrl);
-  const targetUrl = hasValidAffiliateUrl ? offer.affiliateUrl! : hasValidProductUrl ? offer.productUrl! : null;
-  const clickType = hasValidAffiliateUrl ? "affiliate" : hasValidProductUrl ? "product" : null;
+  const { targetUrl, clickType } = resolveRetailerClickUrl(offer);
 
   // 1. Exact validated live offer + in_stock + valid positive price + valid URL -> BUY NOW
   if (targetUrl && offer.price && offer.price > 0) {

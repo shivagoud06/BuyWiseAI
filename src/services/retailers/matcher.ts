@@ -50,6 +50,22 @@ export function matchOfferToProduct(offer: RetailerOffer, product: Laptop): Matc
   const offerText = (offer.offerText || "").toLowerCase();
 
   if (offerText.length > 0) {
+    // Brand Consistency Check
+    const knownBrands = ["hp", "lenovo", "asus", "acer", "dell", "apple", "msi"];
+    const productBrandLower = product.brand.toLowerCase();
+    for (const b of knownBrands) {
+      if (productBrandLower === b && !offerText.includes(b)) {
+        const otherBrand = knownBrands.find((other) => other !== b && offerText.includes(other));
+        if (otherBrand) {
+          return {
+            isMatch: false,
+            confidence: "mismatch",
+            reasons: [`Brand mismatch: product is ${product.brand}, but offer specifies ${otherBrand.toUpperCase()}`],
+          };
+        }
+      }
+    }
+
     const productNameLower = product.name.toLowerCase();
     const knownFamilies = [
       "victus", "omen", "pavilion", "spectre", "envy", "probook", "elitebook",

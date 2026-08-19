@@ -45,18 +45,24 @@ export function generateMetadata({ params }: LaptopPageProps): Metadata {
   };
 }
 
+import { getRetailerOffers } from "@/services/retailers";
+
 export function generateStaticParams() {
   return LAPTOPS.map((laptop) => ({
     id: laptop.id,
   }));
 }
 
-export default function LaptopDetailsPage({ params }: LaptopPageProps) {
+export default async function LaptopDetailsPage({ params }: LaptopPageProps) {
   const laptop = LAPTOPS.find((l) => l.id === params.id);
 
   if (!laptop) {
     notFound();
   }
+
+  // Invoke the server-side live retailer pipeline (Amazon, Flipkart, eBay)
+  const countryCode = laptop.currency === "USD" ? "US" : "IN";
+  const initialOffers = await getRetailerOffers(laptop, countryCode);
 
   // Find similar laptops based on price range or overlapping use cases
   const similarLaptops = LAPTOPS.filter((l) => l.id !== laptop.id)
@@ -101,7 +107,7 @@ export default function LaptopDetailsPage({ params }: LaptopPageProps) {
 
         {/* Client Interactive Product Header & Info Area */}
         <React.Suspense fallback={<div className="p-12 text-center text-surface-400">Loading product details...</div>}>
-          <LaptopClientDetails laptop={laptop} />
+          <LaptopClientDetails laptop={laptop} initialOffers={initialOffers} />
         </React.Suspense>
 
         {/* Similar Laptops Section */}
