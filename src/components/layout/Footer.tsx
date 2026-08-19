@@ -1,10 +1,14 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import Link from "next/link";
-import { Laptop, Info, Mail } from "lucide-react";
+import { Laptop, Info, Mail, MessageSquare } from "lucide-react";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { siteConfig } from "@/config/site";
+import { FeedbackModal } from "@/components/feedback/FeedbackModal";
 
 export function Footer() {
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const currentYear = new Date().getFullYear();
 
   return (
@@ -52,6 +56,15 @@ export function Footer() {
                   <Link href="/advisor" className="hover:text-brand-400 transition-colors">
                     AI Advisor
                   </Link>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => setFeedbackOpen(true)}
+                    className="hover:text-brand-400 transition-colors text-left flex items-center gap-1 text-xs sm:text-sm text-surface-400"
+                  >
+                    <span>Give Feedback</span>
+                  </button>
                 </li>
               </ul>
             </div>
@@ -143,6 +156,12 @@ export function Footer() {
           </div>
         </ScrollReveal>
       </div>
+
+      <FeedbackModal
+        isOpen={feedbackOpen}
+        onClose={() => setFeedbackOpen(false)}
+        source="footer"
+      />
     </footer>
   );
 }

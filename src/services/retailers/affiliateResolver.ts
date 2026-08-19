@@ -34,8 +34,8 @@ export interface RetailerClickEvent {
  * Secrets and tags are NEVER exposed to client code (no NEXT_PUBLIC_ prefix).
  */
 export function getAffiliateConfig(): AffiliateSystemConfig {
-  // Amazon Associates
-  const amazonAssociateTag = process.env.AMAZON_ASSOCIATE_TAG || process.env.AMAZON_ASSOCIATE_ID || null;
+  // Amazon Associates (Default tag: buywiseai06-21 if not overridden by server-side env)
+  const amazonAssociateTag = process.env.AMAZON_ASSOCIATE_TAG || process.env.AMAZON_ASSOCIATE_ID || "buywiseai06-21";
   const isAmazonAffiliateConfigured = Boolean(amazonAssociateTag && amazonAssociateTag.trim().length > 0);
 
   // Flipkart Affiliate
@@ -76,19 +76,57 @@ export function isValidHttpUrl(url?: string | null): boolean {
 }
 
 /**
- * Appends official Amazon Associates tracking tag to an authentic Amazon product URL
+ * Checks if a given URL belongs to an authentic Amazon domain
  */
-export function buildAmazonAffiliateUrl(productUrl: string, tag: string): string {
-  if (!isValidHttpUrl(productUrl) || !tag || tag.trim().length === 0) {
+export function isAmazonUrl(url?: string | null): boolean {
+  if (!isValidHttpUrl(url)) return false;
+  try {
+    const u = new URL(url!.trim());
+    const host = u.hostname.toLowerCase();
+    return (
+      host === "amazon.in" ||
+      host.endsWith(".amazon.in") ||
+      host === "amazon.com" ||
+      host.endsWith(".amazon.com") ||
+      host === "amazon.co.uk" ||
+      host.endsWith(".amazon.co.uk") ||
+      host === "amazon.de" ||
+      host.endsWith(".amazon.de") ||
+      host === "amzn.to" ||
+      host === "amzn.in" ||
+      host.includes("amazon.")
+    );
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Appends official Amazon Associates tracking tag to an authentic Amazon product URL
+ * Replaces any existing/duplicate tag with the configured tag.
+ * Never modifies non-Amazon URLs.
+ */
+export function buildAmazonAffiliateUrl(productUrl?: string | null, tag?: string | null): string {
+  if (!productUrl || typeof productUrl !== "string") {
+    return "";
+  }
+  if (!isValidHttpUrl(productUrl)) {
+    return "";
+  }
+  if (!isAmazonUrl(productUrl)) {
+    return productUrl;
+  }
+  const associateTag = tag && tag.trim().length > 0 ? tag.trim() : (getAffiliateConfig().amazonAssociateTag || "buywiseai06-21");
+  if (!associateTag) {
     return productUrl;
   }
   try {
-    const u = new URL(productUrl);
-    u.searchParams.set("tag", tag.trim());
+    const u = new URL(productUrl.trim());
+    u.searchParams.set("tag", associateTag);
     return u.toString();
   } catch {
     const sep = productUrl.includes("?") ? "&" : "?";
-    return `${productUrl}${sep}tag=${encodeURIComponent(tag.trim())}`;
+    return `${productUrl.trim()}${sep}tag=${encodeURIComponent(associateTag)}`;
   }
 }
 

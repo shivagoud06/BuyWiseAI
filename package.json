@@ -25,6 +25,9 @@
     "test:phase30": "tsx scratch/verify-phase30.ts",
     "test:phase31": "tsx scratch/verify-phase31.ts",
     "test:phase32": "tsx scratch/verify-phase32.ts",
+    "test:phase35": "tsx scratch/verify-phase35.ts",
+    "test:phase36": "tsx scratch/verify-phase36.ts",
+    "test:phase37a": "tsx scratch/verify-phase37a.ts",
     "test:catalog": "tsx scratch/verify-catalog-render.ts"
   },
   "dependencies": {

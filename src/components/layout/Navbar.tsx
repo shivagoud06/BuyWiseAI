@@ -2,12 +2,14 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Laptop, Sparkles, Menu, X, ArrowRight, Scale, BrainCircuit, Search } from "lucide-react";
+import { Laptop, Sparkles, Menu, X, ArrowRight, Scale, BrainCircuit, Search, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useCompare } from "@/context/CompareContext";
+import { FeedbackModal } from "@/components/feedback/FeedbackModal";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const { count } = useCompare();
 
   return (
@@ -68,6 +70,16 @@ export function Navbar() {
 
         {/* Right CTA / Search & Action */}
         <div className="hidden sm:flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setFeedbackOpen(true)}
+            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs text-surface-400 hover:bg-surface-800 hover:text-white transition-colors"
+            title="Provide feedback"
+          >
+            <MessageSquare className="h-3.5 w-3.5 text-brand-400" />
+            <span>Feedback</span>
+          </button>
+
           <Link
             href="/laptops"
             className="rounded-lg p-2 text-surface-400 hover:bg-surface-800 hover:text-white transition-colors"
@@ -155,6 +167,17 @@ export function Navbar() {
               <BrainCircuit className="h-4 w-4 text-cyan-400" />
               <span>AI Advisor</span>
             </Link>
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                setFeedbackOpen(true);
+              }}
+              className="text-base font-medium text-surface-200 hover:text-brand-400 py-1 flex items-center gap-2 text-left"
+            >
+              <MessageSquare className="h-4 w-4 text-brand-400" />
+              <span>Feedback</span>
+            </button>
           </nav>
           <div className="pt-2 border-t border-surface-800 flex flex-col gap-2.5">
             <Link href="/advisor" onClick={() => setMobileMenuOpen(false)}>
@@ -166,6 +189,13 @@ export function Navbar() {
           </div>
         </div>
       )}
+
+      {/* Feedback Modal */}
+      <FeedbackModal
+        isOpen={feedbackOpen}
+        onClose={() => setFeedbackOpen(false)}
+        source="navbar"
+      />
     </header>
   );
 }

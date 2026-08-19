@@ -34,6 +34,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { WhereToBuy } from "@/components/laptops/WhereToBuy";
 import { getBestRetailerOffer } from "@/lib/retailers";
+import { QuickFeedback } from "@/components/feedback/QuickFeedback";
 
 interface LaptopClientDetailsProps {
   laptop: Laptop;
@@ -617,6 +618,11 @@ export function LaptopClientDetails({ laptop, initialOffers }: LaptopClientDetai
               {laptop.cons[0]}
             </div>
           )}
+        </div>
+
+        {/* Quick Recommendation Feedback */}
+        <div className="pt-2 border-t border-surface-800 flex justify-end">
+          <QuickFeedback productId={laptop.id} productName={laptop.name} />
         </div>
       </section>
 
