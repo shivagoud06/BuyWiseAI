@@ -77,38 +77,50 @@ export function matchOfferToProduct(offer: RetailerOffer, product: Laptop): Matc
     // 4. RAM Size Matching Analysis
     const has8Gb = offerText.includes("8gb ram") || offerText.includes("8 gb ram") || (offerText.includes("8gb") && !offerText.includes("rtx") && !offerText.includes("vram") && !offerText.includes("graphics") && !offerText.includes("gpu"));
     const has16Gb = offerText.includes("16gb") || offerText.includes("16 gb");
+    const has24Gb = offerText.includes("24gb") || offerText.includes("24 gb");
     const has32Gb = offerText.includes("32gb") || offerText.includes("32 gb");
     const has64Gb = offerText.includes("64gb") || offerText.includes("64 gb");
 
     // Check 8GB RAM mismatches
     if (product.ramSize === 8) {
-      if (has16Gb || has32Gb || has64Gb) {
+      if (has16Gb || has24Gb || has32Gb || has64Gb) {
         return {
           isMatch: false,
           confidence: "mismatch",
-          reasons: ["Offer is for 16GB/32GB RAM but product requires 8GB configuration"],
+          reasons: ["Offer is for 16GB/24GB/32GB RAM but product requires 8GB configuration"],
         };
       }
     }
 
     // Check 16GB RAM mismatches
     if (product.ramSize === 16) {
-      if (has32Gb || has64Gb || (has8Gb && !has16Gb)) {
+      if (has24Gb || has32Gb || has64Gb || (has8Gb && !has16Gb)) {
         return {
           isMatch: false,
           confidence: "mismatch",
-          reasons: ["Offer is for 8GB/32GB RAM but product requires 16GB configuration"],
+          reasons: ["Offer is for 8GB/24GB/32GB RAM but product requires 16GB configuration"],
+        };
+      }
+    }
+
+    // Check 24GB RAM mismatches
+    if (product.ramSize === 24) {
+      if (has32Gb || has64Gb || (has8Gb && !has24Gb) || (has16Gb && !has24Gb)) {
+        return {
+          isMatch: false,
+          confidence: "mismatch",
+          reasons: ["Offer is for 8GB/16GB/32GB RAM but product requires 24GB configuration"],
         };
       }
     }
 
     // Check 32GB RAM mismatches
     if (product.ramSize === 32) {
-      if ((has8Gb || has16Gb) && !has32Gb) {
+      if ((has8Gb || has16Gb || has24Gb) && !has32Gb) {
         return {
           isMatch: false,
           confidence: "mismatch",
-          reasons: ["Offer is for 8GB/16GB RAM but product requires 32GB configuration"],
+          reasons: ["Offer is for 8GB/16GB/24GB RAM but product requires 32GB configuration"],
         };
       }
     }
