@@ -131,22 +131,140 @@ export function mapPlatformToRetailer(platformInput?: any): { retailerId: Retail
 }
 
 /**
- * Constructs a targeted search query for QuickCommerce laptop search
+ * Maximum search query variants generated per retailer platform
+ */
+export const MAX_QUERIES_PER_PLATFORM = 4;
+
+/**
+ * Deduplicates adjacent words and removes excessive punctuation to ensure clean search terms
+ */
+export function cleanQueryString(input: string): string {
+  if (!input) return "";
+  // Strip parentheses, commas, brackets, special quotes
+  const cleaned = input.replace(/[()[\]{},"']/g, " ").replace(/\s+/g, " ").trim();
+  
+  // Deduplicate adjacent/repeated case-insensitive tokens
+  const words = cleaned.split(" ");
+  const uniqueWords: string[] = [];
+  for (const word of words) {
+    const trimmed = word.trim();
+    if (!trimmed) continue;
+    const lastWord = uniqueWords[uniqueWords.length - 1];
+    if (!lastWord || lastWord.toLowerCase() !== trimmed.toLowerCase()) {
+      uniqueWords.push(trimmed);
+    }
+  }
+  return uniqueWords.join(" ").trim();
+}
+
+/**
+ * Constructs a targeted search query for QuickCommerce laptop search (Primary variant)
  */
 export function buildQuickCommerceSearchQuery(product: Laptop): string {
+  const queries = buildQuickCommerceSearchQueries(product);
+  return queries[0] || `${product.brand} ${product.name}`.trim();
+}
+
+/**
+ * Constructs up to 4 clean, prioritized query variants for multi-query retailer retrieval:
+ * 1. Brand + Full Name / Specific Model Code (Strongest identity)
+ * 2. Brand + Series / Model line (e.g. "HP Victus 15", "Lenovo LOQ 15")
+ * 3. Brand + Series + CPU Tier + GPU Tier (e.g. "HP Victus 15 i5 RTX 3050")
+ * 4. Brand + Series + Dedicated GPU / Key Spec (e.g. "HP Victus RTX 3050")
+ */
+export function buildQuickCommerceSearchQueries(product: Laptop): string[] {
   const brand = (product.brand || "").trim();
   let name = (product.name || "").trim();
 
-  // Strip repeated brand prefix from name if present to avoid "Acer Acer Aspire..."
+  // Strip brand prefix if already part of name
   if (brand && name.toLowerCase().startsWith(brand.toLowerCase())) {
     name = name.substring(brand.length).trim();
   }
 
-  const parts: string[] = [];
-  if (brand) parts.push(brand);
-  if (name) parts.push(name);
+  const queryVariants: string[] = [];
 
-  return parts.join(" ").trim();
+  // Helper to safely add variant if unique and non-empty
+  const addVariant = (raw: string) => {
+    const cleaned = cleanQueryString(raw);
+    if (cleaned && !queryVariants.some((v) => v.toLowerCase() === cleaned.toLowerCase())) {
+      queryVariants.push(cleaned);
+    }
+  };
+
+  // 1. Primary Variant: Brand + Name
+  addVariant(`${brand} ${name}`);
+
+  // 2. Series / Short Model Line Variant (e.g. "HP Victus 15", "Lenovo LOQ 15", "Acer Aspire Lite 15")
+  const seriesLine = name.replace(/[-_][a-zA-Z0-9]+$/i, "").trim();
+  if (seriesLine.toLowerCase() !== name.toLowerCase()) {
+    addVariant(`${brand} ${seriesLine}`);
+  } else {
+    const nameWords = name.split(" ");
+    if (nameWords.length >= 2) {
+      addVariant(`${brand} ${nameWords.slice(0, 2).join(" ")}`);
+    }
+  }
+
+  // 3. Configuration Variant: Brand + Series + CPU + GPU
+  let cpuShort = "";
+  const procLower = (product.processor || product.processorFamily || "").toLowerCase();
+  if (procLower.includes("core 5") || procLower.includes("core i5") || procLower.includes("i5")) cpuShort = "i5";
+  else if (procLower.includes("core 7") || procLower.includes("core i7") || procLower.includes("i7")) cpuShort = "i7";
+  else if (procLower.includes("core 9") || procLower.includes("core i9") || procLower.includes("i9")) cpuShort = "i9";
+  else if (procLower.includes("core i3") || procLower.includes("i3")) cpuShort = "i3";
+  else if (procLower.includes("ryzen 5")) cpuShort = "Ryzen 5";
+  else if (procLower.includes("ryzen 7")) cpuShort = "Ryzen 7";
+  else if (procLower.includes("ryzen 9")) cpuShort = "Ryzen 9";
+  else if (procLower.includes("m2")) cpuShort = "M2";
+  else if (procLower.includes("m3")) cpuShort = "M3";
+
+  let gpuShort = "";
+  const gpuLower = (product.gpu || "").toLowerCase();
+  const rtxMatch = gpuLower.match(/rtx\s*([0-9]{4})/i);
+  if (rtxMatch) {
+    gpuShort = `RTX ${rtxMatch[1]}`;
+  } else if (gpuLower.includes("gtx")) {
+    const gtxMatch = gpuLower.match(/gtx\s*([0-9]{4})/i);
+    if (gtxMatch) gpuShort = `GTX ${gtxMatch[1]}`;
+  }
+
+  const seriesBase = seriesLine || name.split(" ")[0] || "";
+
+  if (cpuShort && gpuShort) {
+    addVariant(`${brand} ${seriesBase} ${cpuShort} ${gpuShort}`);
+  } else if (gpuShort) {
+    addVariant(`${brand} ${seriesBase} ${gpuShort}`);
+  } else if (cpuShort) {
+    addVariant(`${brand} ${seriesBase} ${cpuShort}`);
+  }
+
+  // 4. Dedicated GPU / Spec Variant (e.g. "HP Victus RTX 3050" or "HP Victus 16GB")
+  if (gpuShort) {
+    addVariant(`${brand} ${seriesBase.split(" ")[0]} ${gpuShort}`);
+  } else if (product.ramSize) {
+    addVariant(`${brand} ${seriesBase} ${product.ramSize}GB`);
+  }
+
+  // Ensure maximum MAX_QUERIES_PER_PLATFORM variants
+  return queryVariants.slice(0, MAX_QUERIES_PER_PLATFORM);
+}
+
+/**
+ * Calculates a canonical deduplication key for a retailer offer
+ */
+export function getOfferDeduplicationKey(offer: RetailerOffer): string {
+  if (offer.matchedSku && offer.matchedSku.trim().length > 0) {
+    return `${offer.retailerId}_sku_${offer.matchedSku.toLowerCase().trim()}`;
+  }
+  if (offer.productUrl && offer.productUrl.trim().length > 0) {
+    try {
+      const u = new URL(offer.productUrl);
+      return `${offer.retailerId}_url_${u.origin}${u.pathname}`.toLowerCase();
+    } catch {
+      return `${offer.retailerId}_url_${offer.productUrl.toLowerCase().trim()}`;
+    }
+  }
+  return `${offer.retailerId}_text_${(offer.offerText || "").toLowerCase().trim()}`;
 }
 
 /**
@@ -310,6 +428,7 @@ export const QuickCommerceAdapter: RetailerAdapter = {
 
   /**
    * Retrieves matching offers for a target laptop configuration from QuickCommerce
+   * Uses targeted multi-query retrieval with credit protection (max 4 queries/platform, early stop upon exact match)
    */
   getOffers: async (query: RetailerQuery): Promise<RetailerOffer[]> => {
     const config = getQuickCommerceConfig();
@@ -317,37 +436,43 @@ export const QuickCommerceAdapter: RetailerAdapter = {
       return [];
     }
 
-    const searchQuery = buildQuickCommerceSearchQuery(query.product);
-    
-    // Fetch from both Amazon and Flipkart platforms separately
-    const [rawAmazonItems, rawFlipkartItems] = await Promise.all([
-      QuickCommerceAdapter.searchProducts!(searchQuery, { platform: "Amazon" }),
-      QuickCommerceAdapter.searchProducts!(searchQuery, { platform: "Flipkart" }),
-    ]);
+    const queryVariants = buildQuickCommerceSearchQueries(query.product);
+    const platforms = ["Amazon", "Flipkart"];
+    const candidateOffers: RetailerOffer[] = [];
+    const seenOfferKeys = new Set<string>();
 
-    const allRawItems = [...rawAmazonItems, ...rawFlipkartItems];
+    for (const platform of platforms) {
+      for (const qText of queryVariants) {
+        const rawItems = (await QuickCommerceAdapter.searchProducts!(qText, { platform })) as RawQuickCommerceProduct[];
+        let foundExactOnPlatform = false;
 
-    if (allRawItems.length === 0) {
-      return [];
-    }
+        for (const rawItem of rawItems) {
+          const normalized = normalizeQuickCommerceItem(rawItem);
+          if (!normalized) continue;
 
-    const validatedOffers: RetailerOffer[] = [];
+          // Exact product specification matching (RAM, GPU tier, Storage, SKU)
+          const matchResult = matchOfferToProduct(normalized, query.product);
+          if (!matchResult.isMatch) continue;
 
-    for (const rawItem of allRawItems) {
-      const normalized = normalizeQuickCommerceItem(rawItem as RawQuickCommerceProduct);
-      if (!normalized) continue;
+          // Strict offer schema and compliance validation
+          const validationResult = validateRetailerOffer(normalized, query.product);
+          if (validationResult.isValid && validationResult.offer) {
+            const offerKey = getOfferDeduplicationKey(validationResult.offer);
+            if (!seenOfferKeys.has(offerKey)) {
+              seenOfferKeys.add(offerKey);
+              candidateOffers.push(validationResult.offer);
+            }
+            foundExactOnPlatform = true;
+          }
+        }
 
-      // Exact product specification matching (RAM, GPU tier, Storage, SKU)
-      const matchResult = matchOfferToProduct(normalized, query.product);
-      if (!matchResult.isMatch) continue;
-
-      // Strict offer schema and compliance validation
-      const validationResult = validateRetailerOffer(normalized, query.product);
-      if (validationResult.isValid && validationResult.offer) {
-        validatedOffers.push(validationResult.offer);
+        // Early stop: Stop searching subsequent query variants on this platform once an exact match is verified
+        if (foundExactOnPlatform) {
+          break;
+        }
       }
     }
 
-    return validatedOffers;
+    return candidateOffers;
   },
 };
