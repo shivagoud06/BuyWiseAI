@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CompareProvider } from "@/context/CompareContext";
+import { NotificationPermissionBanner } from "@/components/notifications/NotificationPermissionBanner";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -70,6 +71,7 @@ export default function RootLayout({
     <html lang="en" className={inter.variable}>
       <body className="min-h-screen bg-[#060b13] text-surface-100 flex flex-col font-sans selection:bg-brand-500/30 selection:text-brand-200">
         <CompareProvider>
+          <NotificationPermissionBanner />
           <Navbar />
           <main className="flex-1">{children}</main>
           <Footer />

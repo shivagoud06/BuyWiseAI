@@ -1,16 +1,30 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Laptop, Sparkles, Menu, X, ArrowRight, Scale, BrainCircuit, Search, MessageSquare } from "lucide-react";
+import { Laptop, Sparkles, Menu, X, ArrowRight, Scale, BrainCircuit, Search, MessageSquare, Bell } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useCompare } from "@/context/CompareContext";
 import { FeedbackModal } from "@/components/feedback/FeedbackModal";
+import { NotificationSettingsModal } from "@/components/notifications/NotificationSettingsModal";
+import { getNotificationConsent, getNotificationHistory } from "@/services/notifications/consent";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [notifSettingsOpen, setNotifSettingsOpen] = useState(false);
+  const [hasAlerts, setHasAlerts] = useState(false);
   const { count } = useCompare();
+
+  useEffect(() => {
+    try {
+      const history = getNotificationHistory();
+      const consent = getNotificationConsent();
+      setHasAlerts(consent.enabled || history.length > 0);
+    } catch {
+      // safe fallback
+    }
+  }, [notifSettingsOpen]);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-surface-800/80 bg-surface-950/85 backdrop-blur-xl transition-all">
@@ -70,6 +84,20 @@ export function Navbar() {
 
         {/* Right CTA / Search & Action */}
         <div className="hidden sm:flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setNotifSettingsOpen(true)}
+            className="relative flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs text-surface-400 hover:bg-surface-800 hover:text-white transition-colors"
+            title="Notification alerts"
+            aria-label="Notification alerts"
+          >
+            <Bell className="h-3.5 w-3.5 text-brand-400" />
+            <span>Alerts</span>
+            {hasAlerts && (
+              <span className="h-1.5 w-1.5 rounded-full bg-brand-400"></span>
+            )}
+          </button>
+
           <button
             type="button"
             onClick={() => setFeedbackOpen(true)}
@@ -171,6 +199,20 @@ export function Navbar() {
               type="button"
               onClick={() => {
                 setMobileMenuOpen(false);
+                setNotifSettingsOpen(true);
+              }}
+              className="text-base font-medium text-surface-200 hover:text-brand-400 py-1 flex items-center gap-2 text-left"
+            >
+              <Bell className="h-4 w-4 text-brand-400" />
+              <span>Smart Alerts</span>
+              {hasAlerts && (
+                <span className="h-1.5 w-1.5 rounded-full bg-brand-400"></span>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false);
                 setFeedbackOpen(true);
               }}
               className="text-base font-medium text-surface-200 hover:text-brand-400 py-1 flex items-center gap-2 text-left"
@@ -189,6 +231,12 @@ export function Navbar() {
           </div>
         </div>
       )}
+
+      {/* Notification Settings Modal */}
+      <NotificationSettingsModal
+        isOpen={notifSettingsOpen}
+        onClose={() => setNotifSettingsOpen(false)}
+      />
 
       {/* Feedback Modal */}
       <FeedbackModal
