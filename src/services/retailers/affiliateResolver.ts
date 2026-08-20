@@ -1,4 +1,5 @@
 import { RetailerOffer, RetailerId } from "@/types";
+import { interestTracker } from "@/services/interest/tracker";
 
 export interface AffiliateSystemConfig {
   amazonAssociateTag: string | null;
@@ -237,6 +238,17 @@ export function recordRetailerClick(event: RetailerClickEvent): void {
     trackingProvider: event.trackingProvider,
     source: event.source,
   };
+
+  try {
+    interestTracker.recordRetailerClick(
+      safeEvent.retailerId,
+      safeEvent.productId,
+      safeEvent.clickType,
+      safeEvent.timestamp
+    );
+  } catch {
+    // Fail-safe
+  }
 
   if (process.env.NODE_ENV === "development") {
     // console.debug("[Retailer Click Tracked]:", safeEvent);

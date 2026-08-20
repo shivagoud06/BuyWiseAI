@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { analytics } from "@/lib/analytics";
 
 function LaptopFinderContent() {
   const searchParams = useSearchParams();
@@ -76,6 +77,23 @@ function LaptopFinderContent() {
   const searchResult = useMemo(() => {
     return findSmartSearchResults(LAPTOPS, filters, sortOption);
   }, [filters, sortOption]);
+
+  // Debounced search query interest tracking
+  useEffect(() => {
+    const q = filters.searchQuery?.trim();
+    if (!q || q.length < 2) return;
+
+    const timer = setTimeout(() => {
+      const matchedIds = searchResult.exactMatches.slice(0, 5).map((l) => l.id);
+      analytics.trackSearch({
+        query: q,
+        resultCount: searchResult.exactMatches.length,
+        matchedProductIds: matchedIds,
+      });
+    }, 600);
+
+    return () => clearTimeout(timer);
+  }, [filters.searchQuery, searchResult.exactMatches]);
 
   const displayedLaptops = searchResult.exactMatches.length > 0 ? searchResult.exactMatches : searchResult.fallbackMatches;
   const availableCatalogCount = LAPTOPS.filter((l) => !l.isUpcoming).length;

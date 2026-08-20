@@ -35,6 +35,7 @@ import { Button } from "@/components/ui/Button";
 import { WhereToBuy } from "@/components/laptops/WhereToBuy";
 import { getBestRetailerOffer } from "@/lib/retailers";
 import { QuickFeedback } from "@/components/feedback/QuickFeedback";
+import { analytics } from "@/lib/analytics";
 
 interface LaptopClientDetailsProps {
   laptop: Laptop;
@@ -47,6 +48,24 @@ export function LaptopClientDetails({ laptop, initialOffers }: LaptopClientDetai
   const compared = isComparing(laptop.id);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [buyModalOpen, setBuyModalOpen] = useState(false);
+
+  // Track product view and advisor click in interest tracker
+  React.useEffect(() => {
+    if (laptop?.id) {
+      analytics.trackProductView({
+        productId: laptop.id,
+        productName: laptop.name,
+        price: laptop.price || undefined,
+      });
+
+      if (searchParams?.get("from") === "advisor") {
+        analytics.trackAdvisorRecommendationClick({
+          productId: laptop.id,
+          productName: laptop.name,
+        });
+      }
+    }
+  }, [laptop?.id, laptop?.name, laptop?.price, searchParams]);
 
   // Check if arriving from AI Advisor
   const fromAdvisor = searchParams?.get("from") === "advisor";

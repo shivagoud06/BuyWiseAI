@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Laptop } from "@/types";
 import { LAPTOPS } from "@/data/laptops";
+import { analytics } from "@/lib/analytics";
 
 interface CompareContextType {
   comparedLaptops: Laptop[];
@@ -60,7 +61,16 @@ export function CompareProvider({ children }: { children: React.ReactNode }) {
       alert("You can compare a maximum of 3 laptops at a time. Remove one first.");
       return false;
     }
-    setComparedLaptops((prev) => [...prev, laptop]);
+    const updated = [...comparedLaptops, laptop];
+    setComparedLaptops(updated);
+    try {
+      analytics.trackCompare({
+        productIds: updated.map((l) => l.id),
+        productCount: updated.length,
+      });
+    } catch {
+      // safe fallback
+    }
     return true;
   };
 

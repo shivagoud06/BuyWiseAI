@@ -21,6 +21,7 @@ import { AdvisorWizard } from "@/components/advisor/AdvisorWizard";
 import { AdvisorResults } from "@/components/advisor/AdvisorResults";
 import { Compass, MessageSquare, SlidersHorizontal } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
+import { analytics } from "@/lib/analytics";
 
 type AdvisorMode = "nlp" | "guided";
 type AdvisorState = "input" | "interpreted" | "results";
@@ -165,6 +166,19 @@ function AdvisorContent() {
     advisorState === "results" && activeInput
       ? getLaptopRecommendations(activeInput, LAPTOPS)
       : null;
+
+  // Track advisor usage event for smart interest tracking
+  useEffect(() => {
+    if (advisorState === "results" && activeInput && recommendationData) {
+      analytics.trackAdvisorUse({
+        primaryUse: activeInput.primaryUse,
+        budget: activeInput.budget,
+        recommendationsCount: recommendationData.recommendations.length,
+        recommendedProductIds: recommendationData.recommendations.map((r) => r.laptop.id),
+        isRelaxed: recommendationData.isRelaxed,
+      });
+    }
+  }, [advisorState, activeInput, recommendationData?.recommendations?.length]);
 
   return (
     <div className="min-h-screen py-10 sm:py-16">
