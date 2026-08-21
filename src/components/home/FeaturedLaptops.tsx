@@ -57,8 +57,8 @@ export function FeaturedLaptops() {
           </div>
         </ScrollReveal>
 
-        {/* 4-Column Laptop Cards Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+        {/* Responsive Laptop Cards Grid */}
+        <div className="grid grid-cols-1 min-[480px]:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
           {popularLaptops.map((laptop, index) => (
             <ScrollReveal key={laptop.id} delay={index * 50}>
               <LaptopCard laptop={laptop} />

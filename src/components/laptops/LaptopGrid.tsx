@@ -142,8 +142,8 @@ export function LaptopGrid({
           </div>
         </div>
       ) : (
-        /* ── 4-Column Laptop Cards Grid ── */
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+        /* ── Responsive Laptop Cards Grid ── */
+        <div className="grid grid-cols-1 min-[480px]:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
           {laptops.map((laptop) => (
             <LaptopCard
               key={laptop.id}
@@ -169,7 +169,7 @@ export function LaptopGrid({
             </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 min-[480px]:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
             {upcomingLaptops.map((laptop) => (
               <LaptopCard key={laptop.id} laptop={laptop} />
             ))}

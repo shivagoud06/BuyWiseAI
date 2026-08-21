@@ -12,6 +12,9 @@ export type AnalyticsEventType =
   | "advisor_recommendation_click"
   | "feedback_open"
   | "feedback_submit"
+  | "feedback_helpful"
+  | "feedback_not_helpful"
+  | "feedback_approved"
   | "recommendation_helpful"
   | "recommendation_not_helpful";
 
@@ -78,6 +81,11 @@ export interface FeedbackSubmitAnalyticsPayload {
   timestamp?: string;
 }
 
+export interface FeedbackVoteAnalyticsPayload {
+  feedbackId?: string;
+  timestamp?: string;
+}
+
 export interface RecommendationVoteAnalyticsPayload {
   productId?: string;
   productName?: string;
@@ -97,6 +105,9 @@ const FORBIDDEN_KEYS = [
   "cvv",
   "creditCard",
   "comment",
+  "message",
+  "email",
+  "phone",
 ];
 
 /**
@@ -199,6 +210,8 @@ export const analytics = {
     trackEvent("advisor_recommendation_click", payload),
   trackFeedbackOpen: (payload?: FeedbackOpenAnalyticsPayload) => trackEvent("feedback_open", payload || {}),
   trackFeedbackSubmit: (payload: FeedbackSubmitAnalyticsPayload) => trackEvent("feedback_submit", payload),
+  trackFeedbackHelpful: (payload: FeedbackVoteAnalyticsPayload) => trackEvent("feedback_helpful", payload),
+  trackFeedbackNotHelpful: (payload: FeedbackVoteAnalyticsPayload) => trackEvent("feedback_not_helpful", payload),
   trackRecommendationHelpful: (payload: RecommendationVoteAnalyticsPayload) =>
     trackEvent("recommendation_helpful", payload),
   trackRecommendationNotHelpful: (payload: RecommendationVoteAnalyticsPayload) =>

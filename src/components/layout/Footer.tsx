@@ -46,6 +46,7 @@ export function Footer() {
                     Give Feedback
                   </button>
                 </li>
+                <li><Link href="/feedback" className="hover:text-teal-600 transition-colors">Community Feedback</Link></li>
               </ul>
             </div>
 
@@ -58,6 +59,7 @@ export function Footer() {
                 <li><Link href="/buying-guide" className="hover:text-teal-600 transition-colors">Laptop Buying Guide</Link></li>
                 <li><Link href="/how-it-works" className="hover:text-teal-600 transition-colors">How BuyWise Works</Link></li>
                 <li><Link href="/advisor" className="hover:text-teal-600 transition-colors">Find My Laptop</Link></li>
+                <li><Link href="/feedback" className="hover:text-teal-600 transition-colors">User Reviews</Link></li>
               </ul>
             </div>
 

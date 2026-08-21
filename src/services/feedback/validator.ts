@@ -61,23 +61,30 @@ export function validateFeedbackSubmission(raw: any): FeedbackValidationResult {
     }
   }
 
-  // 4. Comment Validation
+  // 4. Comment / Message Validation (Max 500 characters)
   let cleanComment = "";
-  if (raw.comment !== undefined && raw.comment !== null) {
-    if (typeof raw.comment !== "string") {
+  const rawComment = raw.comment !== undefined ? raw.comment : raw.message;
+  if (rawComment !== undefined && rawComment !== null) {
+    if (typeof rawComment !== "string") {
       issues.push({ field: "comment", message: "Comment must be a text string" });
     } else {
-      cleanComment = sanitizeText(raw.comment);
-      if (cleanComment.length > MAX_COMMENT_LENGTH) {
+      cleanComment = sanitizeText(rawComment);
+      if (cleanComment.length > 500) {
         issues.push({
           field: "comment",
-          message: `Comment must be under ${MAX_COMMENT_LENGTH} characters (received ${cleanComment.length})`,
+          message: `Comment must be 500 characters or less (received ${cleanComment.length})`,
         });
       }
     }
   }
 
-  // 5. Optional Email Validation
+  // 5. Optional Display Name Validation (Max 50 characters)
+  let cleanDisplayName: string | null = null;
+  if (raw.displayName !== undefined && raw.displayName !== null && String(raw.displayName).trim().length > 0) {
+    cleanDisplayName = sanitizeText(String(raw.displayName)).slice(0, 50);
+  }
+
+  // 6. Optional Email Validation
   let cleanEmail: string | null = null;
   if (raw.email !== undefined && raw.email !== null && String(raw.email).trim().length > 0) {
     const emailStr = String(raw.email).trim();
@@ -88,6 +95,9 @@ export function validateFeedbackSubmission(raw: any): FeedbackValidationResult {
     }
   }
 
+  // 7. Show Name Publicly Preference
+  const showNamePublicly = Boolean(raw.showNamePublicly);
+
   if (issues.length > 0) {
     return {
       isValid: false,
@@ -95,18 +105,27 @@ export function validateFeedbackSubmission(raw: any): FeedbackValidationResult {
     };
   }
 
+  const nowIso = new Date().toISOString();
   const cleanData: FeedbackSubmission = {
     id: `fb_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
     rating,
     category,
     comment: cleanComment.length > 0 ? cleanComment : undefined,
+    displayName: cleanDisplayName,
     email: cleanEmail,
+    showNamePublicly,
+    status: "PENDING",
+    helpfulCount: 0,
+    notHelpfulCount: 0,
+    isVerifiedUser: true,
     productId: raw.productId ? sanitizeText(String(raw.productId)).slice(0, 80) : undefined,
     productName: raw.productName ? sanitizeText(String(raw.productName)).slice(0, 120) : undefined,
     pageUrl: raw.pageUrl ? sanitizeText(String(raw.pageUrl)).slice(0, 200) : undefined,
     feedbackType,
     helpfulVote: typeof raw.helpfulVote === "boolean" ? raw.helpfulVote : undefined,
-    timestamp: new Date().toISOString(),
+    timestamp: nowIso,
+    createdAt: nowIso,
+    updatedAt: nowIso,
   };
 
   return {

@@ -96,13 +96,6 @@ export function Navbar() {
                 </span>
               )}
             </button>
-
-            {/* Notification Center Dropdown */}
-            <AlertsNotificationCenter
-              isOpen={alertsOpen}
-              onClose={() => setAlertsOpen(false)}
-              onOpenSettings={() => setNotifSettingsOpen(true)}
-            />
           </div>
 
           <button
@@ -236,14 +229,12 @@ export function Navbar() {
         </div>
       )}
 
-      {/* Mobile Alerts Center & Modals */}
-      <div className="md:hidden">
-        <AlertsNotificationCenter
-          isOpen={alertsOpen}
-          onClose={() => setAlertsOpen(false)}
-          onOpenSettings={() => setNotifSettingsOpen(true)}
-        />
-      </div>
+      {/* Modals & Portals */}
+      <AlertsNotificationCenter
+        isOpen={alertsOpen}
+        onClose={() => setAlertsOpen(false)}
+        onOpenSettings={() => setNotifSettingsOpen(true)}
+      />
       <NotificationSettingsModal isOpen={notifSettingsOpen} onClose={() => setNotifSettingsOpen(false)} />
       <FeedbackModal isOpen={feedbackOpen} onClose={() => setFeedbackOpen(false)} source="navbar" />
     </header>

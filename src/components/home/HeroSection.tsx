@@ -28,10 +28,10 @@ export function HeroSection() {
   };
 
   return (
-    <section className="relative pt-10 pb-6 sm:pt-14 sm:pb-8 text-center overflow-hidden">
+    <section className="relative pt-10 pb-6 sm:pt-14 sm:pb-8 text-center overflow-hidden max-w-full">
       {/* Subtle teal ambient glow */}
-      <div className="absolute inset-0 -z-10 flex items-center justify-center">
-        <div className="h-[300px] w-[600px] rounded-full bg-gradient-to-tr from-[#0EA5A4]/10 via-cyan-400/5 to-transparent blur-3xl" />
+      <div className="absolute inset-0 -z-10 flex items-center justify-center overflow-hidden pointer-events-none">
+        <div className="h-[300px] w-[min(600px,100vw)] rounded-full bg-gradient-to-tr from-[#0EA5A4]/10 via-cyan-400/5 to-transparent blur-3xl" />
       </div>
 
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">

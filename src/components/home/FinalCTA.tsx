@@ -5,10 +5,10 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 export function FinalCTA() {
   return (
-    <section className="py-16 sm:py-20 border-t border-[#E5E7EB] text-center relative overflow-hidden">
+    <section className="py-16 sm:py-20 border-t border-[#E5E7EB] text-center relative overflow-hidden max-w-full">
       {/* Subtle teal glow */}
-      <div className="absolute inset-0 -z-10 flex items-center justify-center">
-        <div className="h-[240px] w-[500px] rounded-full bg-gradient-to-tr from-brand-400/8 via-cyan-400/5 to-transparent blur-3xl" />
+      <div className="absolute inset-0 -z-10 flex items-center justify-center overflow-hidden pointer-events-none">
+        <div className="h-[240px] w-[min(500px,100vw)] rounded-full bg-gradient-to-tr from-brand-400/8 via-cyan-400/5 to-transparent blur-3xl" />
       </div>
 
       <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 space-y-6">
