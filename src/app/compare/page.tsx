@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { calculateEffectivePrice } from "@/services/retailers/offers";
+import { getLaptopImage, getLaptopImageAlt, DEFAULT_LAPTOP_FALLBACK_IMAGE } from "@/lib/laptopImage";
 
 export default function ComparePage() {
   const { comparedLaptops, removeLaptop, addLaptop, clearCompare, count } = useCompare();
@@ -225,11 +226,14 @@ export default function ComparePage() {
                         className="p-4 sm:p-6 w-1/4 align-top border-l border-[#E5E7EB]"
                       >
                         <div className="space-y-3">
-                          <div className="relative aspect-[16/10] w-full rounded-xl overflow-hidden bg-white border border-[#E5E7EB]">
+                          <div className="relative aspect-[16/10] w-full rounded-xl overflow-hidden bg-white border border-[#E5E7EB] p-3 flex items-center justify-center">
                             <img
-                              src={laptop.image}
-                              alt={laptop.name}
-                              className="h-full w-full object-contain"
+                              src={getLaptopImage(laptop)}
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = DEFAULT_LAPTOP_FALLBACK_IMAGE;
+                              }}
+                              alt={getLaptopImageAlt(laptop)}
+                              className="h-full w-full object-contain object-center"
                             />
                             <button
                               type="button"

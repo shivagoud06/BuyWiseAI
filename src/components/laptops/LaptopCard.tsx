@@ -20,6 +20,8 @@ import {
   Zap,
 } from "lucide-react";
 
+import { getLaptopImage, getLaptopImageAlt, DEFAULT_LAPTOP_FALLBACK_IMAGE } from "@/lib/laptopImage";
+
 interface LaptopCardProps {
   laptop: Laptop;
   fallbackExplanation?: string;
@@ -57,7 +59,7 @@ export function LaptopCard({ laptop, fallbackExplanation }: LaptopCardProps) {
 
   const shortProcessor = laptop.processor.split("(")[0].trim();
   const verdictConfig = getVerdictConfig();
-  const normalizedImage = `/images/laptops/normalized/${laptop.id}.svg`;
+  const productImage = getLaptopImage(laptop);
 
   return (
     <div className="group flex flex-col bg-white rounded-xl border border-[#E2E8F0] shadow-card-light hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200 overflow-hidden h-full">
@@ -69,12 +71,11 @@ export function LaptopCard({ laptop, fallbackExplanation }: LaptopCardProps) {
         tabIndex={0}
       >
         <img
-          src={normalizedImage}
+          src={productImage}
           onError={(e) => {
-            // Fallback gracefully to laptop.image
-            (e.target as HTMLImageElement).src = laptop.image;
+            (e.target as HTMLImageElement).src = DEFAULT_LAPTOP_FALLBACK_IMAGE;
           }}
-          alt={`${laptop.brand} ${laptop.name} laptop`}
+          alt={getLaptopImageAlt(laptop)}
           loading="lazy"
           onLoad={() => setImageLoaded(true)}
           className={`h-full w-full object-contain object-center transition-all duration-300 group-hover:scale-[1.03] ${

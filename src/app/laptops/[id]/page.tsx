@@ -15,6 +15,7 @@ import {
 import { Metadata } from "next";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { getLaptopImage } from "@/lib/laptopImage";
 
 interface LaptopPageProps {
   params: {
@@ -40,7 +41,7 @@ export function generateMetadata({ params }: LaptopPageProps): Metadata {
       title: `${laptop.name} — BuyWise AI Score ${laptop.buyWiseScore}/100`,
       description: desc,
       type: "website",
-      images: laptop.image ? [{ url: laptop.image }] : undefined,
+      images: [{ url: getLaptopImage(laptop) }],
     },
   };
 }

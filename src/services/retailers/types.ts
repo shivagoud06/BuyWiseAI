@@ -51,3 +51,49 @@ export interface ValidationResult {
   offer: RetailerOffer | null;
   issues: ValidationIssue[];
 }
+
+/**
+ * Universal Retailer Provider Interface
+ * Standard abstraction for searching offers, retrieving individual retailer quotes, and validating offers.
+ */
+export interface RetailerProvider {
+  /**
+   * Search real offers across all supported retailer adapters for a given product
+   */
+  searchOffers: (
+    product: Laptop,
+    options?: { countryCode?: CountryCode; timeoutMs?: number }
+  ) => Promise<RetailerOffer[]>;
+
+  /**
+   * Get an offer from a specific retailer for a product
+   */
+  getOffer: (product: Laptop, retailerId: RetailerId) => Promise<RetailerOffer | null>;
+
+  /**
+   * Validate a candidate retailer offer against data integrity and product configuration
+   */
+  validateOffer: (offer: unknown, product?: Laptop) => ValidationResult;
+}
+
+/**
+ * Universal Affiliate Adapter Interface
+ * Allows affiliate networks (such as Cuelinks, Amazon Associates, eBay EPN) to plug in dynamically.
+ */
+export interface AffiliateAdapter {
+  id: string;
+  name: string;
+  /**
+   * Checks whether required server-side credentials/keys are configured via environment variables
+   */
+  isConfigured: () => boolean;
+  /**
+   * Converts a real product URL into an authenticated tracking deeplink.
+   * Returns null if unconfigured or unsupported.
+   */
+  convertProductUrlToAffiliateUrl: (
+    productUrl: string,
+    retailerId: RetailerId
+  ) => Promise<string | null> | string | null;
+}
+

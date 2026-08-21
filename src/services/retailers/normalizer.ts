@@ -11,6 +11,9 @@ import { RETAILER_REGISTRY } from "./registry";
 export interface RawRetailerInput {
   retailerId: string;
   retailerName?: string;
+  retailer?: string;
+  productId?: string;
+  seller?: string | null;
   countryCode?: string;
   price: number | string;
   mrp?: number | string | null;
@@ -20,6 +23,8 @@ export interface RawRetailerInput {
   affiliateUrl?: string | null;
   availability?: string;
   lastUpdated?: string | Date;
+  lastVerified?: string | Date;
+  isVerified?: boolean;
   offerText?: string;
   affiliateEligible?: boolean;
   source?: OfferSourceType | string;
@@ -134,12 +139,24 @@ export function normalizeRetailerOffer(raw: RawRetailerInput): RetailerOffer | n
     }
   }
 
+  let lastVerified = lastUpdated;
+  if (raw.lastVerified) {
+    if (raw.lastVerified instanceof Date) {
+      lastVerified = raw.lastVerified.toISOString().split("T")[0];
+    } else if (typeof raw.lastVerified === "string" && raw.lastVerified.trim().length > 0) {
+      lastVerified = raw.lastVerified.trim();
+    }
+  }
+
   const productUrl = normalizeUrl(raw.productUrl);
   const affiliateUrl = normalizeUrl(raw.affiliateUrl);
 
   const offer: RetailerOffer = {
     retailerId,
     retailerName,
+    retailer: raw.retailer || retailerName,
+    productId: raw.productId || undefined,
+    seller: raw.seller !== undefined ? raw.seller : null,
     countryCode,
     price,
     mrp,
@@ -149,6 +166,8 @@ export function normalizeRetailerOffer(raw: RawRetailerInput): RetailerOffer | n
     affiliateUrl,
     availability,
     lastUpdated,
+    lastVerified,
+    isVerified: raw.isVerified ?? true,
     offerText: raw.offerText || undefined,
     affiliateEligible: raw.affiliateEligible ?? (Boolean(affiliateUrl) && (regInfo?.affiliateSupported ?? false)),
     source: (raw.source as OfferSourceType) || "official_api",

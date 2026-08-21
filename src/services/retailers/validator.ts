@@ -131,9 +131,19 @@ export function validateRetailerOffer(
 
   const isValid = issues.length === 0;
 
+  let validatedOffer: RetailerOffer | null = null;
+  if (isValid) {
+    validatedOffer = {
+      ...(o as RetailerOffer),
+      productId: expectedProduct?.id || o.productId,
+      isVerified: true,
+      lastVerified: o.lastVerified || o.lastUpdated || new Date().toISOString().split("T")[0],
+    };
+  }
+
   return {
     isValid,
-    offer: isValid ? (o as RetailerOffer) : null,
+    offer: validatedOffer,
     issues,
   };
 }

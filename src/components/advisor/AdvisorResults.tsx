@@ -32,6 +32,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { WhereToBuy } from "@/components/laptops/WhereToBuy";
 import { calculateEffectivePrice } from "@/services/retailers/offers";
+import { getLaptopImage, getLaptopImageAlt, DEFAULT_LAPTOP_FALLBACK_IMAGE } from "@/lib/laptopImage";
 
 interface AdvisorResultsProps {
   results: RecommendationResult[];
@@ -243,9 +244,12 @@ export function AdvisorResults({
           {/* Product Image */}
           <div className="md:col-span-4 relative aspect-[16/11] rounded-2xl overflow-hidden bg-white border border-[#E2E8F0] p-3 flex items-center justify-center shadow-xs">
             <img
-              src={laptop.image}
-              alt={laptop.name}
-              className="h-full w-full object-contain"
+              src={getLaptopImage(laptop)}
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = DEFAULT_LAPTOP_FALLBACK_IMAGE;
+              }}
+              alt={getLaptopImageAlt(laptop)}
+              className="h-full w-full object-contain object-center"
             />
             <div className="absolute bottom-2 left-2 rounded-md bg-white/90 px-2 py-0.5 text-[10px] font-bold text-[#111827] border border-[#E2E8F0] shadow-xs">
               {laptop.brand}

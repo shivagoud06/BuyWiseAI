@@ -1,0 +1,22 @@
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="600" fill="#F8FAFC"/>
+  <g transform="translate(180, 140)">
+    <!-- Laptop screen frame -->
+    <rect x="40" y="20" width="360" height="230" rx="12" fill="#E2E8F0" stroke="#CBD5E1" stroke-width="3"/>
+    <!-- Screen display area -->
+    <rect x="52" y="32" width="336" height="206" rx="6" fill="#F1F5F9"/>
+    <!-- Camera -->
+    <circle cx="220" cy="26" r="3" fill="#94A3B8"/>
+    <!-- Subtle screen placeholder icon -->
+    <g transform="translate(196, 110)" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+      <rect x="0" y="0" width="48" height="36" rx="4"/>
+      <path d="M0 26l14-12 12 10 12-14 10 12"/>
+      <circle cx="12" cy="10" r="3"/>
+    </g>
+    <!-- Laptop base -->
+    <path d="M10 252C10 250 12 250 20 250H420C428 250 430 250 430 252L440 268C440 273 436 276 430 276H10C4 276 0 273 0 268L10 252Z" fill="#CBD5E1" stroke="#94A3B8" stroke-width="2"/>
+    <path d="M190 252H250V256C250 258 248 260 246 260H194C192 260 190 258 190 256V252Z" fill="#94A3B8"/>
+  </g>
+  <text x="400" y="470" text-anchor="middle" fill="#64748B" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="600" letter-spacing="0.5">Product Image Unavailable</text>
+  <text x="400" y="495" text-anchor="middle" fill="#94A3B8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12">BuyWise AI Verified Catalog</text>
+</svg>

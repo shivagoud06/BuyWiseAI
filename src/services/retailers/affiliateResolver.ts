@@ -1,12 +1,15 @@
 import { RetailerOffer, RetailerId } from "@/types";
 import { interestTracker } from "@/services/interest/tracker";
+import { AffiliateAdapter } from "./types";
 
 export interface AffiliateSystemConfig {
   amazonAssociateTag: string | null;
   flipkartAffiliateId: string | null;
+  cuelinksPublisherId: string | null;
   ebayCampaignId: string | null;
   isAmazonAffiliateConfigured: boolean;
   isFlipkartAffiliateConfigured: boolean;
+  isCuelinksConfigured: boolean;
   isEbayAffiliateEnabled: boolean; // Always false for Sandbox / production unapproved
 }
 
@@ -39,9 +42,13 @@ export function getAffiliateConfig(): AffiliateSystemConfig {
   const amazonAssociateTag = process.env.AMAZON_ASSOCIATE_TAG || process.env.AMAZON_ASSOCIATE_ID || "buywiseai06-21";
   const isAmazonAffiliateConfigured = Boolean(amazonAssociateTag && amazonAssociateTag.trim().length > 0);
 
-  // Flipkart Affiliate
+  // Flipkart Direct Affiliate
   const flipkartAffiliateId = process.env.FLIPKART_AFFILIATE_ID || null;
   const isFlipkartAffiliateConfigured = Boolean(flipkartAffiliateId && flipkartAffiliateId.trim().length > 0);
+
+  // Cuelinks Sub-Affiliate Network (Pending approval; configured via env vars only)
+  const cuelinksPublisherId = process.env.CUELINKS_PUBLISHER_ID || null;
+  const isCuelinksConfigured = Boolean(cuelinksPublisherId && cuelinksPublisherId.trim().length > 0);
 
   // eBay Partner Network (production affiliate access NOT approved; keep disabled)
   const ebayCampaignId = process.env.EBAY_CAMPAIGN_ID || null;
@@ -50,9 +57,11 @@ export function getAffiliateConfig(): AffiliateSystemConfig {
   return {
     amazonAssociateTag,
     flipkartAffiliateId,
+    cuelinksPublisherId,
     ebayCampaignId,
     isAmazonAffiliateConfigured,
     isFlipkartAffiliateConfigured,
+    isCuelinksConfigured,
     isEbayAffiliateEnabled,
   };
 }
@@ -149,12 +158,102 @@ export function buildFlipkartAffiliateUrl(productUrl: string, affiliateId: strin
 }
 
 /**
+ * Builds a Cuelinks redirect URL for authentic retailer links when publisher credentials are validly configured.
+ * When approval is pending / unconfigured, returns null safely.
+ */
+export function buildCuelinksAffiliateUrl(productUrl: string, publisherId: string, subId?: string): string | null {
+  if (!isValidHttpUrl(productUrl) || !publisherId || publisherId.trim().length === 0) {
+    return null;
+  }
+  const cleanUrl = productUrl.trim();
+  const encodedUrl = encodeURIComponent(cleanUrl);
+  const subIdParam = subId ? `&subid=${encodeURIComponent(subId)}` : "";
+  return `https://linksredirect.com/?pub_id=${encodeURIComponent(publisherId.trim())}${subIdParam}&url=${encodedUrl}`;
+}
+
+/**
+ * Amazon Associates Adapter
+ */
+export const AmazonAffiliateAdapter: AffiliateAdapter = {
+  id: "amazon",
+  name: "Amazon Associates",
+  isConfigured: () => getAffiliateConfig().isAmazonAffiliateConfigured,
+  convertProductUrlToAffiliateUrl: (productUrl: string, _retailerId: RetailerId) => {
+    const config = getAffiliateConfig();
+    if (!config.isAmazonAffiliateConfigured || !config.amazonAssociateTag) return null;
+    return buildAmazonAffiliateUrl(productUrl, config.amazonAssociateTag);
+  },
+};
+
+/**
+ * Flipkart Direct Affiliate Adapter
+ */
+export const FlipkartAffiliateAdapter: AffiliateAdapter = {
+  id: "flipkart",
+  name: "Flipkart Affiliate",
+  isConfigured: () => getAffiliateConfig().isFlipkartAffiliateConfigured,
+  convertProductUrlToAffiliateUrl: (productUrl: string, _retailerId: RetailerId) => {
+    const config = getAffiliateConfig();
+    if (!config.isFlipkartAffiliateConfigured || !config.flipkartAffiliateId) return null;
+    return buildFlipkartAffiliateUrl(productUrl, config.flipkartAffiliateId);
+  },
+};
+
+/**
+ * Cuelinks Sub-Affiliate Adapter
+ * Provides a unified affiliate layer for Indian retailers (Flipkart, Croma, Reliance Digital, etc.)
+ * Safely dormant when approval is pending or env vars are empty.
+ */
+export const CuelinksAffiliateAdapter: AffiliateAdapter = {
+  id: "cuelinks",
+  name: "Cuelinks Sub-Affiliate Network",
+  isConfigured: () => getAffiliateConfig().isCuelinksConfigured,
+  convertProductUrlToAffiliateUrl: (productUrl: string, _retailerId: RetailerId) => {
+    const config = getAffiliateConfig();
+    if (!config.isCuelinksConfigured || !config.cuelinksPublisherId) return null;
+    return buildCuelinksAffiliateUrl(productUrl, config.cuelinksPublisherId);
+  },
+};
+
+export const ALL_AFFILIATE_ADAPTERS: AffiliateAdapter[] = [
+  AmazonAffiliateAdapter,
+  FlipkartAffiliateAdapter,
+  CuelinksAffiliateAdapter,
+];
+
+/**
+ * Converts a raw product URL to an authentic tracking affiliate URL using active configured adapters.
+ */
+export function convertProductUrlToAffiliateUrl(
+  productUrl: string,
+  retailerId: RetailerId
+): string | null {
+  if (!isValidHttpUrl(productUrl)) return null;
+
+  // 1. Check direct retailer affiliate adapter first
+  if (retailerId === "amazon" && AmazonAffiliateAdapter.isConfigured()) {
+    return AmazonAffiliateAdapter.convertProductUrlToAffiliateUrl(productUrl, retailerId) as string | null;
+  }
+  if (retailerId === "flipkart" && FlipkartAffiliateAdapter.isConfigured()) {
+    return FlipkartAffiliateAdapter.convertProductUrlToAffiliateUrl(productUrl, retailerId) as string | null;
+  }
+
+  // 2. Check Cuelinks sub-affiliate adapter for eligible Indian retailers
+  if (CuelinksAffiliateAdapter.isConfigured()) {
+    return CuelinksAffiliateAdapter.convertProductUrlToAffiliateUrl(productUrl, retailerId) as string | null;
+  }
+
+  return null;
+}
+
+/**
  * Central Retailer Click URL Resolver
  * 
  * Hierarchy:
- * 1. Valid approved affiliate URL
- * 2. Valid retailer product URL
- * 3. null
+ * 1. Valid approved affiliate URL on the offer
+ * 2. Dynamic affiliate URL converted via active adapter
+ * 3. Legitimate retailer product URL
+ * 4. null
  * 
  * Never fabricates an affiliate URL unless legitimate credentials exist.
  * Normal product URLs continue to function cleanly when no affiliate link is configured.
@@ -180,24 +279,19 @@ export function resolveRetailerClickUrl(offer?: RetailerOffer | null): ResolvedC
 
   // 2. Derive affiliate URL if retailer has configured server-side affiliate credentials
   if (isValidHttpUrl(offer.productUrl)) {
-    const config = getAffiliateConfig();
+    const convertedUrl = convertProductUrlToAffiliateUrl(offer.productUrl!, offer.retailerId);
+    if (convertedUrl) {
+      const trackingProvider =
+        offer.retailerId === "amazon"
+          ? "amazon_associates"
+          : offer.retailerId === "flipkart" && getAffiliateConfig().isFlipkartAffiliateConfigured
+          ? "flipkart_affiliate"
+          : "cuelinks";
 
-    if (offer.retailerId === "amazon" && config.isAmazonAffiliateConfigured) {
-      const taggedUrl = buildAmazonAffiliateUrl(offer.productUrl!, config.amazonAssociateTag!);
       return {
-        targetUrl: taggedUrl,
+        targetUrl: convertedUrl,
         clickType: "affiliate",
-        trackingProvider: "amazon_associates",
-        affiliateEnabled: true,
-      };
-    }
-
-    if (offer.retailerId === "flipkart" && config.isFlipkartAffiliateConfigured) {
-      const taggedUrl = buildFlipkartAffiliateUrl(offer.productUrl!, config.flipkartAffiliateId!);
-      return {
-        targetUrl: taggedUrl,
-        clickType: "affiliate",
-        trackingProvider: "flipkart_affiliate",
+        trackingProvider,
         affiliateEnabled: true,
       };
     }

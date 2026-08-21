@@ -1,5 +1,5 @@
-import { Laptop, RetailerOffer, CountryCode, RetailerId, RetailerInfo } from "@/types";
-import { RetailerAdapter, RetailerQuery } from "./types";
+import { Laptop, RetailerOffer, CountryCode, RetailerId, RetailerInfo, RetailerState } from "@/types";
+import { RetailerAdapter, RetailerQuery, RetailerProvider, ValidationResult } from "./types";
 import { AmazonAdapter } from "./adapters/amazon";
 import { FlipkartAdapter } from "./adapters/flipkart";
 import { CromaAdapter } from "./adapters/croma";
@@ -9,7 +9,7 @@ import { OfficialStoreAdapter } from "./adapters/officialStore";
 import { EbayAdapter } from "./adapters/ebay";
 import { QuickCommerceAdapter } from "./adapters/quickcommerce";
 import { normalizeRetailerOffers } from "./normalizer";
-import { validateRetailerOffers } from "./validator";
+import { validateRetailerOffers, validateRetailerOffer } from "./validator";
 import { getBestListedPrice } from "./priceComparison";
 import { RETAILER_REGISTRY, getRetailerInfo, getRetailersForCountry } from "./registry";
 import { resolveRetailerClickUrl } from "./affiliateResolver";
@@ -21,6 +21,12 @@ export * from "./validator";
 export * from "./normalizer";
 export * from "./priceComparison";
 export * from "./offers";
+export * from "./adapters/amazon";
+export * from "./adapters/flipkart";
+export * from "./adapters/croma";
+export * from "./adapters/relianceDigital";
+export * from "./adapters/vijaySales";
+export * from "./adapters/officialStore";
 export * from "./adapters/ebay";
 export * from "./adapters/quickcommerce";
 export * from "./affiliateResolver";
@@ -100,6 +106,7 @@ export type RetailerButtonState = "BUY_NOW" | "NOT_AVAILABLE" | "COMING_SOON";
 
 export interface RetailerOfferStatusResult {
   status: RetailerButtonState;
+  state: RetailerState;
   buttonLabel: string;
   isClickable: boolean;
   targetUrl: string | null;
@@ -107,11 +114,37 @@ export interface RetailerOfferStatusResult {
 }
 
 /**
+ * Resolves the standardized lifecycle state of a retailer offer
+ */
+export function getRetailerOfferState(
+  offer?: RetailerOffer | null,
+  isValidated: boolean = true
+): RetailerState {
+  if (!offer || offer.isMock || offer.source === "mock") {
+    return "COMING_SOON";
+  }
+  if (!isValidated && offer.isVerified === false) {
+    return "COMING_SOON";
+  }
+  if (offer.availability === "out-of-stock") {
+    return "UNAVAILABLE";
+  }
+  if (!offer.price || offer.price <= 0) {
+    return "COMING_SOON";
+  }
+  const { targetUrl } = resolveRetailerClickUrl(offer);
+  if (!targetUrl) {
+    return "COMING_SOON";
+  }
+  return "LIVE";
+}
+
+/**
  * Central Retailer Status Priority Engine
  * Priority:
- * 1. Exact validated live offer + in_stock + valid positive price + valid URL -> BUY NOW
- * 2. Exact validated live offer + out_of_stock -> NOT AVAILABLE
- * 3. No validated live offer from that retailer/platform -> COMING SOON
+ * 1. Exact validated live offer + in_stock + valid positive price + valid URL -> BUY NOW (LIVE)
+ * 2. Exact validated live offer + out_of_stock -> NOT AVAILABLE (UNAVAILABLE)
+ * 3. No validated live offer from that retailer/platform -> COMING SOON (COMING_SOON)
  *
  * CRITICAL RULE: The retailer's registry connectionStatus NEVER overrides a validated live RetailerOffer.
  */
@@ -119,6 +152,7 @@ export function resolveRetailerOfferStatus(offer?: RetailerOffer | null): Retail
   if (!offer || offer.isMock || offer.source === "mock") {
     return {
       status: "COMING_SOON",
+      state: "COMING_SOON",
       buttonLabel: "COMING SOON",
       isClickable: false,
       targetUrl: null,
@@ -130,6 +164,7 @@ export function resolveRetailerOfferStatus(offer?: RetailerOffer | null): Retail
   if (offer.availability === "out-of-stock") {
     return {
       status: "NOT_AVAILABLE",
+      state: "UNAVAILABLE",
       buttonLabel: "NOT AVAILABLE",
       isClickable: false,
       targetUrl: null,
@@ -143,6 +178,7 @@ export function resolveRetailerOfferStatus(offer?: RetailerOffer | null): Retail
   if (targetUrl && offer.price && offer.price > 0) {
     return {
       status: "BUY_NOW",
+      state: "LIVE",
       buttonLabel: "BUY NOW →",
       isClickable: true,
       targetUrl,
@@ -153,12 +189,47 @@ export function resolveRetailerOfferStatus(offer?: RetailerOffer | null): Retail
   // 3. No valid URL or unpriced -> COMING SOON
   return {
     status: "COMING_SOON",
+    state: "COMING_SOON",
     buttonLabel: "COMING SOON",
     isClickable: false,
     targetUrl: null,
     clickType: null,
   };
 }
+
+/**
+ * Universal Retailer Provider Implementation
+ */
+export const retailerProvider: RetailerProvider = {
+  searchOffers: async (
+    product: Laptop,
+    options?: { countryCode?: CountryCode; timeoutMs?: number }
+  ): Promise<RetailerOffer[]> => {
+    return getRetailerOffers(product, options?.countryCode || "IN", {
+      timeoutMs: options?.timeoutMs,
+    });
+  },
+
+  getOffer: async (
+    product: Laptop,
+    retailerId: RetailerId
+  ): Promise<RetailerOffer | null> => {
+    const adapter = ALL_RETAILER_ADAPTERS.find((a) => a.id === retailerId);
+    if (!adapter) return null;
+    const query: RetailerQuery = {
+      product,
+      countryCode: adapter.countryCode,
+      currency: adapter.currency,
+    };
+    const rawOffers = await executeAdapterSafe(adapter, query);
+    const validOffers = validateRetailerOffers(rawOffers, product);
+    return validOffers[0] || null;
+  },
+
+  validateOffer: (offer: unknown, product?: Laptop): ValidationResult => {
+    return validateRetailerOffer(offer, product);
+  },
+};
 
 /**
  * Central Retailer Service Layer
@@ -175,10 +246,12 @@ export const retailerService = {
   getConnectedRetailers: (): RetailerInfo[] => {
     return Object.values(RETAILER_REGISTRY).filter((r) => r.connectionStatus === "connected");
   },
+  provider: retailerProvider,
   getRetailerOffers,
   validateRetailerOffers,
   getBestListedPrice,
   getRetailerInfo,
   getRetailersForCountry,
   resolveRetailerOfferStatus,
+  getRetailerOfferState,
 };

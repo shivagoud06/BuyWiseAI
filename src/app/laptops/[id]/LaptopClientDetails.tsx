@@ -36,6 +36,7 @@ import { WhereToBuy } from "@/components/laptops/WhereToBuy";
 import { getBestRetailerOffer } from "@/lib/retailers";
 import { QuickFeedback } from "@/components/feedback/QuickFeedback";
 import { analytics } from "@/lib/analytics";
+import { getLaptopImage, getLaptopImageAlt, DEFAULT_LAPTOP_FALLBACK_IMAGE } from "@/lib/laptopImage";
 
 interface LaptopClientDetailsProps {
   laptop: Laptop;
@@ -154,8 +155,11 @@ export function LaptopClientDetails({ laptop, initialOffers }: LaptopClientDetai
         <div className="lg:col-span-6 space-y-4">
           <div className="relative aspect-[16/11] w-full rounded-2xl bg-white border border-[#E5E7EB] p-4 flex items-center justify-center overflow-hidden shadow-sm">
             <img
-              src={laptop.image}
-              alt={`${laptop.brand} ${laptop.name} product photo`}
+              src={getLaptopImage(laptop)}
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = DEFAULT_LAPTOP_FALLBACK_IMAGE;
+              }}
+              alt={getLaptopImageAlt(laptop)}
               onLoad={() => setImageLoaded(true)}
               className={`h-full w-full object-contain object-center transition-all duration-500 ${
                 imageLoaded ? "opacity-100" : "opacity-0"

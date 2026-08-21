@@ -108,9 +108,13 @@ export interface DiscountOffer {
   exchangeMaxAmount?: number | null;
 }
 
+export type RetailerState = "LIVE" | "UNAVAILABLE" | "COMING_SOON" | "ERROR";
+
 export interface RetailerOffer {
   retailerId: RetailerId;
   retailerName: string;
+  retailer?: string; // Retailer name alias
+  productId?: string; // Matched laptop product ID
   countryCode?: CountryCode;
   price: number; // Price in the offer's currency
   mrp?: number | null; // MRP in the offer's currency
@@ -118,10 +122,13 @@ export interface RetailerOffer {
   currency: CurrencyCode;
   productUrl?: string | null; // Real product URL or null
   affiliateUrl?: string | null; // Real affiliate URL or null
-  trackingProvider?: "amazon_associates" | "flipkart_affiliate" | "ebay_partner_network" | "direct" | string;
+  seller?: string | null; // Verified seller / merchant name
+  trackingProvider?: "amazon_associates" | "flipkart_affiliate" | "cuelinks" | "ebay_partner_network" | "direct" | string;
   affiliateEnabled?: boolean;
   availability: AvailabilityStatus;
   lastUpdated: string;
+  lastVerified?: string; // Verification date timestamp
+  isVerified?: boolean; // Whether the offer has passed schema & configuration verification
   offerText?: string;
   affiliateEligible: boolean;
   source?: OfferSourceType;
