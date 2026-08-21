@@ -127,120 +127,49 @@ export function AdvisorResults({
         return {
           icon: Trophy,
           label: "🏆 BEST MATCH",
-          badgeClass: "bg-brand-500 text-surface-950 font-extrabold shadow-md shadow-brand-500/20",
-          borderClass: "border-brand-500/50 bg-gradient-to-br from-brand-950/30 via-surface-900/90 to-surface-950 shadow-brand-500/5",
-          matchColor: "text-brand-300 border-brand-500/40 bg-brand-500/10",
+          badgeClass: "bg-teal-600 text-white font-extrabold shadow-sm",
+          borderClass: "border-teal-300 bg-white ring-1 ring-teal-500/20 shadow-md",
+          matchColor: "text-teal-700 border-teal-200 bg-teal-50",
         };
       case 2:
         return {
           icon: Sparkles,
           label: "🥈 STRONG CONTENDER",
-          badgeClass: "bg-cyan-500 text-surface-950 font-bold",
-          borderClass: "border-cyan-500/30 bg-surface-900/70",
-          matchColor: "text-cyan-300 border-cyan-500/40 bg-cyan-500/10",
+          badgeClass: "bg-cyan-600 text-white font-bold",
+          borderClass: "border-[#E2E8F0] bg-white shadow-sm",
+          matchColor: "text-cyan-700 border-cyan-200 bg-cyan-50",
         };
       case 3:
         return {
           icon: Sparkles,
           label: "🥉 GREAT ALTERNATIVE",
-          badgeClass: "bg-surface-700 text-white font-bold",
-          borderClass: "border-surface-750 bg-surface-900/60",
-          matchColor: "text-teal-300 border-teal-500/40 bg-teal-500/10",
+          badgeClass: "bg-slate-700 text-white font-bold",
+          borderClass: "border-[#E2E8F0] bg-white shadow-sm",
+          matchColor: "text-teal-700 border-teal-200 bg-teal-50",
         };
       default:
         return {
           icon: Sparkles,
           label: `MATCH #${rank}`,
-          badgeClass: "bg-surface-800 text-surface-200 font-semibold border border-surface-700",
-          borderClass: "border-surface-800 bg-surface-900/50",
-          matchColor: "text-surface-300 border-surface-700 bg-surface-800/40",
+          badgeClass: "bg-slate-100 text-[#334155] font-semibold border border-[#CBD5E1]",
+          borderClass: "border-[#E2E8F0] bg-white shadow-sm",
+          matchColor: "text-[#475569] border-[#E2E8F0] bg-slate-50",
         };
     }
-  };
-
-  const renderActionButton = (offer: RetailerOffer, laptopId: string, laptopName: string) => {
-    // 2. Out of stock offers
-    if (offer.availability === "out-of-stock") {
-      return (
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled
-          className="w-full text-[11px] py-1.5 font-semibold shrink-0 border-surface-800 text-surface-500 opacity-60 cursor-not-allowed justify-center"
-        >
-          <span>NOT AVAILABLE</span>
-        </Button>
-      );
-    }
-
-    const hasValidAffiliateUrl =
-      offer.affiliateUrl &&
-      offer.affiliateUrl.trim().length > 0 &&
-      (offer.affiliateUrl.startsWith("http://") || offer.affiliateUrl.startsWith("https://"));
-
-    const hasValidProductUrl =
-      offer.productUrl &&
-      offer.productUrl.trim().length > 0 &&
-      (offer.productUrl.startsWith("http://") || offer.productUrl.startsWith("https://"));
-
-    const targetUrl = hasValidAffiliateUrl ? offer.affiliateUrl! : hasValidProductUrl ? offer.productUrl! : null;
-    const clickType = hasValidAffiliateUrl ? "affiliate" : "product";
-
-    // 1. Valid live URL -> BUY NOW
-    if (targetUrl) {
-      return (
-        <a
-          href={targetUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={() =>
-            handleRetailerClick({
-              productId: laptopId,
-              productName: laptopName,
-              retailerId: offer.retailerId,
-              retailerName: offer.retailerName,
-              price: offer.price,
-              targetUrl,
-              clickType,
-              timestamp: new Date().toISOString(),
-              source: "advisor",
-            })
-          }
-          className="w-full inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl text-[11px] font-bold text-surface-950 bg-brand-500 hover:bg-brand-400 shadow-sm transition-all shrink-0"
-        >
-          <span>BUY NOW →</span>
-          <ExternalLink className="h-3 w-3 stroke-[2.5]" />
-        </a>
-      );
-    }
-
-    // 3. Supported retailer without live URL
-    return (
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        disabled
-        className="w-full text-[11px] py-1.5 font-semibold shrink-0 border-surface-800 text-surface-400 bg-surface-900/60 opacity-80 cursor-not-allowed justify-center"
-      >
-        <span>COMING SOON</span>
-      </Button>
-    );
   };
 
   // If Unsupported Market
   if (isUnsupportedMarket) {
     return (
       <div className="space-y-6 max-w-2xl mx-auto py-8 animate-fadeIn text-center">
-        <Card className="p-8 sm:p-10 rounded-3xl border-surface-800 bg-surface-900/80 backdrop-blur-xl space-y-5">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/20 mx-auto">
+        <div className="p-8 sm:p-10 rounded-3xl border border-[#E2E8F0] bg-white shadow-xl space-y-5">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 border border-amber-200 mx-auto">
             <Globe className="h-6 w-6" />
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-white font-sans">
+          <h2 className="text-xl sm:text-2xl font-bold text-[#111827] font-sans">
             BuyWise doesn&apos;t have verified laptop pricing for this market yet.
           </h2>
-          <p className="text-sm text-surface-300 leading-relaxed max-w-lg mx-auto">
+          <p className="text-sm text-[#64748B] leading-relaxed max-w-lg mx-auto">
             {unsupportedMessage ||
               "We currently have verified catalog coverage for India (₹ INR), the United States ($ USD), the United Kingdom (£ GBP), and Europe (€ EUR)."}
           </p>
@@ -250,7 +179,7 @@ export function AdvisorResults({
               <span>Try a Different Search</span>
             </Button>
           </div>
-        </Card>
+        </div>
       </div>
     );
   }
@@ -267,21 +196,21 @@ export function AdvisorResults({
     const bestOffer = offersToDisplay.find((o) => o.availability !== "out-of-stock");
 
     return (
-      <Card
+      <div
         key={laptop.id}
-        className={`p-4 sm:p-7 rounded-3xl border ${theme.borderClass} shadow-xl backdrop-blur-xl transition-all space-y-5`}
+        className={`p-5 sm:p-7 rounded-3xl border ${theme.borderClass} shadow-md transition-all space-y-5`}
       >
         {/* Card Top: Rank Badge, Brand, Price & BuyWise Match Score */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-surface-800/80">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#E2E8F0]">
           <div className="flex items-center gap-2.5 flex-wrap">
             <span className={`px-3 py-1 rounded-xl text-xs ${theme.badgeClass}`}>
               {theme.label}
             </span>
-            <span className="text-xs text-surface-400 font-semibold uppercase tracking-wider">
+            <span className="text-xs text-[#64748B] font-bold uppercase tracking-wider">
               {laptop.brand}
             </span>
             {laptop.model && (
-              <span className="text-[11px] text-surface-500 font-mono">
+              <span className="text-[11px] text-[#94A3B8] font-mono">
                 {laptop.model}
               </span>
             )}
@@ -297,14 +226,14 @@ export function AdvisorResults({
                 <Sparkles className="h-3.5 w-3.5" />
                 <span>{matchPercentage}% Match</span>
               </div>
-              <span className="text-[10px] text-surface-500 mt-0.5 hidden sm:inline">
+              <span className="text-[10px] text-[#94A3B8] mt-0.5 hidden sm:inline">
                 BuyWise Match
               </span>
             </div>
 
             {/* BuyWise Score */}
-            <div className="text-xs text-surface-300 font-semibold pl-2 border-l border-surface-800">
-              Score: <strong className="text-white">{laptop.buyWiseScore}</strong>/100
+            <div className="text-xs text-[#64748B] font-semibold pl-3 border-l border-[#E2E8F0]">
+              Score: <strong className="text-[#111827]">{laptop.buyWiseScore}</strong>/100
             </div>
           </div>
         </div>
@@ -312,13 +241,13 @@ export function AdvisorResults({
         {/* Middle Section: Image (Left) + Details & Specs (Right) */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
           {/* Product Image */}
-          <div className="md:col-span-4 relative aspect-[16/11] rounded-2xl overflow-hidden bg-surface-950 border border-surface-800">
+          <div className="md:col-span-4 relative aspect-[16/11] rounded-2xl overflow-hidden bg-white border border-[#E2E8F0] p-3 flex items-center justify-center shadow-xs">
             <img
               src={laptop.image}
               alt={laptop.name}
-              className="h-full w-full object-cover"
+              className="h-full w-full object-contain"
             />
-            <div className="absolute bottom-2 left-2 rounded-md bg-surface-950/85 px-2 py-0.5 text-[10px] font-semibold text-white backdrop-blur-sm border border-surface-700">
+            <div className="absolute bottom-2 left-2 rounded-md bg-white/90 px-2 py-0.5 text-[10px] font-bold text-[#111827] border border-[#E2E8F0] shadow-xs">
               {laptop.brand}
             </div>
           </div>
@@ -327,12 +256,12 @@ export function AdvisorResults({
           <div className="md:col-span-8 space-y-3.5">
             <div>
               <Link href={`/laptops/${laptop.id}?from=advisor&use=${encodeURIComponent(input.primaryUse)}&budget=${encodeURIComponent(input.budget)}&match=${encodeURIComponent(whyItMatches.join('|'))}`}>
-                <h3 className="text-lg sm:text-xl font-bold text-white hover:text-brand-300 transition-colors font-sans">
+                <h3 className="text-lg sm:text-xl font-bold text-[#111827] hover:text-teal-700 transition-colors font-sans">
                   {laptop.name}
                 </h3>
               </Link>
               {laptop.fullName && (
-                <p className="text-xs text-surface-400 truncate mt-0.5">
+                <p className="text-xs text-[#64748B] truncate mt-0.5">
                   {laptop.fullName}
                 </p>
               )}
@@ -345,24 +274,24 @@ export function AdvisorResults({
                   <div className="space-y-1 mt-1.5">
                     <div className="flex flex-wrap items-baseline gap-3">
                       <div>
-                        <span className="text-[10px] text-surface-500 block font-medium">Catalog Reference Price</span>
-                        <span className="text-xl sm:text-2xl font-bold text-white font-sans">
+                        <span className="text-[10px] text-[#94A3B8] block font-medium">Catalog Reference Price</span>
+                        <span className="text-xl sm:text-2xl font-bold text-[#111827] font-sans">
                           {formatCurrency(priceToDisplay, currencyToDisplay)}
                         </span>
                       </div>
 
                       {hasOfferDiscount && (
                         <div>
-                          <span className="text-[10px] text-emerald-400 block font-medium">Pay Now (With Offers)</span>
-                          <span className="text-xl sm:text-2xl font-extrabold text-emerald-300 font-sans">
+                          <span className="text-[10px] text-emerald-600 block font-medium">Pay Now (With Offers)</span>
+                          <span className="text-xl sm:text-2xl font-extrabold text-emerald-700 font-sans">
                             {formatCurrency(effectiveCalc.effectivePrice, currencyToDisplay)}
                           </span>
                         </div>
                       )}
 
                       {bestOffer && priceToDisplay && bestOffer.price < priceToDisplay && (
-                        <span className="text-xs font-semibold text-brand-300 bg-brand-500/10 border border-brand-500/20 px-2.5 py-1 rounded-lg flex items-center gap-1 self-end mb-0.5">
-                          <Sparkles className="h-3 w-3 text-brand-400" />
+                        <span className="text-xs font-bold text-teal-800 bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-lg flex items-center gap-1 self-end mb-0.5 shadow-xs">
+                          <Sparkles className="h-3 w-3 text-teal-600" />
                           Best Listed: {formatCurrency(bestOffer.price, currencyToDisplay)} ({bestOffer.retailerName})
                         </span>
                       )}
@@ -374,46 +303,46 @@ export function AdvisorResults({
 
             {/* Quick Specs Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-              <div className="p-2 rounded-xl bg-surface-950/80 border border-surface-800 text-surface-300">
-                <span className="text-[10px] text-surface-500 block">CPU</span>
-                <span className="font-semibold text-white truncate block">{laptop.processor.split("(")[0]}</span>
+              <div className="p-2.5 rounded-xl bg-slate-50 border border-[#E2E8F0]">
+                <span className="text-[10px] text-[#94A3B8] block font-medium">CPU</span>
+                <span className="font-semibold text-[#111827] truncate block">{laptop.processor.split("(")[0]}</span>
               </div>
-              <div className="p-2 rounded-xl bg-surface-950/80 border border-surface-800 text-surface-300">
-                <span className="text-[10px] text-surface-500 block">RAM / Storage</span>
-                <span className="font-semibold text-white truncate block">{laptop.ram.split(" ")[0]} / {laptop.storage.split(" ")[0]}</span>
+              <div className="p-2.5 rounded-xl bg-slate-50 border border-[#E2E8F0]">
+                <span className="text-[10px] text-[#94A3B8] block font-medium">RAM / Storage</span>
+                <span className="font-semibold text-[#111827] truncate block">{laptop.ram.split(" ")[0]} / {laptop.storage.split(" ")[0]}</span>
               </div>
-              <div className="p-2 rounded-xl bg-surface-950/80 border border-surface-800 text-surface-300">
-                <span className="text-[10px] text-surface-500 block">Graphics</span>
-                <span className="font-semibold text-white truncate block">{laptop.gpu.replace("NVIDIA GeForce ", "")}</span>
+              <div className="p-2.5 rounded-xl bg-slate-50 border border-[#E2E8F0]">
+                <span className="text-[10px] text-[#94A3B8] block font-medium">Graphics</span>
+                <span className="font-semibold text-[#111827] truncate block">{laptop.gpu.replace("NVIDIA GeForce ", "")}</span>
               </div>
-              <div className="p-2 rounded-xl bg-surface-950/80 border border-surface-800 text-surface-300">
-                <span className="text-[10px] text-surface-500 block">Display</span>
-                <span className="font-semibold text-white truncate block">{laptop.display.split("(")[0]}</span>
+              <div className="p-2.5 rounded-xl bg-slate-50 border border-[#E2E8F0]">
+                <span className="text-[10px] text-[#94A3B8] block font-medium">Display</span>
+                <span className="font-semibold text-[#111827] truncate block">{laptop.display.split("(")[0]}</span>
               </div>
             </div>
 
             {/* Why it matches */}
-            <div className="rounded-2xl bg-surface-950/50 border border-surface-800 p-3.5 space-y-2">
-              <div className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
-                <CheckCircle2 className="h-4 w-4" />
+            <div className="rounded-2xl bg-emerald-50/70 border border-emerald-200 p-3.5 space-y-1.5">
+              <div className="text-xs font-bold text-emerald-800 flex items-center gap-1.5">
+                <CheckCircle2 className="h-4 w-4 text-emerald-600" />
                 <span>Why it matches your requirements:</span>
               </div>
-              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-xs text-surface-200">
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-xs text-emerald-950">
                 {whyItMatches.map((reason, idx) => (
                   <li key={idx} className="flex items-start gap-1.5">
-                    <Check className="h-3.5 w-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                    <Check className="h-3.5 w-3.5 text-emerald-600 shrink-0 mt-0.5" />
                     <span>{reason}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
-            {/* Near-Match Warning Note (if relaxed or missing important requirement) */}
+            {/* Near-Match Warning Note */}
             {item.warningNote && (
-              <div className="rounded-xl bg-amber-950/30 border border-amber-500/50 px-3.5 py-2.5 text-xs text-amber-200 flex items-start gap-2.5">
-                <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" />
+              <div className="rounded-xl bg-amber-50 border border-amber-200 px-3.5 py-2.5 text-xs text-amber-900 flex items-start gap-2.5">
+                <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
                 <div>
-                  <strong className="text-amber-300 font-bold">Requirement Note:</strong>{" "}
+                  <strong className="text-amber-800 font-bold">Requirement Note:</strong>{" "}
                   <span>{item.warningNote}</span>
                 </div>
               </div>
@@ -421,10 +350,10 @@ export function AdvisorResults({
 
             {/* Potential drawback */}
             {potentialDrawback && !item.warningNote && (
-              <div className="rounded-xl bg-surface-950/40 border border-surface-800/80 px-3 py-2 text-xs text-surface-300 flex items-start gap-2">
-                <AlertTriangle className="h-3.5 w-3.5 text-amber-400 shrink-0 mt-0.5" />
+              <div className="rounded-xl bg-slate-50 border border-[#E2E8F0] px-3 py-2 text-xs text-[#475569] flex items-start gap-2">
+                <AlertTriangle className="h-3.5 w-3.5 text-amber-500 shrink-0 mt-0.5" />
                 <div>
-                  <strong className="text-amber-300">Trade-off:</strong>{" "}
+                  <strong className="text-[#111827]">Trade-off:</strong>{" "}
                   <span>{potentialDrawback}</span>
                 </div>
               </div>
@@ -433,7 +362,7 @@ export function AdvisorResults({
         </div>
 
         {/* Direct "Where to Buy" Retailer Section inside Recommendation Card */}
-        <div className="pt-3.5 border-t border-surface-800/80">
+        <div className="pt-3.5 border-t border-[#E2E8F0]">
           <WhereToBuy
             laptop={laptop}
             offers={offersToDisplay}
@@ -443,63 +372,66 @@ export function AdvisorResults({
         </div>
 
         {/* Bottom Actions: Add to Compare & View Full Details */}
-        <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-3.5 border-t border-surface-800/80">
+        <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-3.5 border-t border-[#E2E8F0]">
           <Button
             type="button"
             variant={compared ? "secondary" : "outline"}
             size="sm"
             onClick={() => toggleLaptop(laptop)}
-            className="w-full sm:w-auto text-xs font-semibold border-surface-700"
+            className="w-full sm:w-auto text-xs font-semibold border-[#E2E8F0] bg-white text-[#111827]"
           >
             {compared ? (
               <>
-                <Check className="h-3.5 w-3.5 text-emerald-400" />
+                <Check className="h-3.5 w-3.5 text-emerald-600" />
                 <span>Added to Compare</span>
               </>
             ) : (
               <>
-                <Plus className="h-3.5 w-3.5 text-brand-400" />
+                <Plus className="h-3.5 w-3.5 text-teal-600" />
                 <span>Add to Compare</span>
               </>
             )}
           </Button>
 
           <Link href={`/laptops/${laptop.id}`} className="w-full sm:w-auto">
-            <Button variant="primary" size="sm" className="w-full sm:w-auto text-xs font-bold justify-center">
+            <button
+              type="button"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 px-4 py-2 rounded-xl transition-all shadow-sm"
+            >
               <span>View Full Details</span>
               <ArrowRight className="h-3.5 w-3.5" />
-            </Button>
+            </button>
           </Link>
         </div>
-      </Card>
+      </div>
     );
   };
 
   return (
     <div className="space-y-8 animate-fadeIn max-w-5xl mx-auto">
       {/* Search Summary Bar */}
-      <div className="p-4 rounded-2xl bg-surface-900/60 border border-surface-800 backdrop-blur-md flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+      <div className="p-4 rounded-2xl bg-white border border-[#E2E8F0] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-surface-400 font-semibold uppercase tracking-wider text-[10px]">
+          <span className="text-[#64748B] font-bold uppercase tracking-wider text-[10px]">
             Your search:
           </span>
-          <span className="px-2.5 py-1 rounded-lg bg-surface-950 text-white font-medium border border-surface-750">
+          <span className="px-2.5 py-1 rounded-lg bg-slate-100 text-[#111827] font-semibold border border-[#E2E8F0]">
             {input.primaryUse}
           </span>
-          <span className="px-2.5 py-1 rounded-lg bg-surface-950 text-white font-medium border border-surface-750">
+          <span className="px-2.5 py-1 rounded-lg bg-slate-100 text-[#111827] font-semibold border border-[#E2E8F0]">
             {getBudgetLabel(input.budget, activeCurrency)}
           </span>
-          <span className="px-2.5 py-1 rounded-lg bg-surface-950 text-brand-300 font-medium border border-surface-750 flex items-center gap-1">
+          <span className="px-2.5 py-1 rounded-lg bg-teal-50 text-teal-700 font-semibold border border-teal-200 flex items-center gap-1">
             <Globe className="h-3 w-3" />
             Market: {activeCurrency}
           </span>
           {input.ramPreference !== "no-preference" && (
-            <span className="px-2.5 py-1 rounded-lg bg-surface-950 text-white font-medium border border-surface-750">
+            <span className="px-2.5 py-1 rounded-lg bg-slate-100 text-[#111827] font-semibold border border-[#E2E8F0]">
               {input.ramPreference} RAM
             </span>
           )}
           {input.priorities.map((p) => (
-            <span key={p} className="px-2.5 py-1 rounded-lg bg-surface-950 text-surface-300 font-medium border border-surface-750">
+            <span key={p} className="px-2.5 py-1 rounded-lg bg-slate-100 text-[#475569] font-medium border border-[#E2E8F0]">
               {p}
             </span>
           ))}
@@ -507,7 +439,7 @@ export function AdvisorResults({
 
         <button
           onClick={onReset}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-400 hover:text-brand-300 transition-colors self-start sm:self-auto"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-teal-600 hover:text-teal-700 transition-colors self-start sm:self-auto"
         >
           <RotateCcw className="h-3.5 w-3.5" />
           <span>Change Preferences</span>
@@ -516,8 +448,8 @@ export function AdvisorResults({
 
       {/* Ambiguous Currency Notification (e.g. '$' without country) */}
       {isAmbiguousCurrency && (
-        <div className="rounded-2xl border border-blue-500/30 bg-blue-950/20 p-4 text-blue-200 text-xs flex items-center gap-2.5">
-          <HelpCircle className="h-4 w-4 text-blue-400 shrink-0" />
+        <div className="rounded-2xl border border-blue-200 bg-blue-50/70 p-4 text-blue-900 text-xs flex items-center gap-2.5 shadow-sm">
+          <HelpCircle className="h-4 w-4 text-blue-600 shrink-0" />
           <span>
             Showing results for <strong>United States ($ USD)</strong>. If you are shopping in another country, simply include it in your request (e.g., &quot;in UK&quot; or &quot;in India&quot;).
           </span>
@@ -525,18 +457,18 @@ export function AdvisorResults({
       )}
 
       {/* Top Header with Total Match Count & Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-surface-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[#E2E8F0]">
         <div>
           <div className="inline-flex items-center gap-2 mb-1.5">
-            <Sparkles className="h-4 w-4 text-brand-400" />
-            <span className="text-xs font-bold uppercase tracking-wider text-brand-400">
+            <Sparkles className="h-4 w-4 text-teal-600" />
+            <span className="text-xs font-bold uppercase tracking-wider text-teal-700">
               Your BuyWise Recommendations
             </span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white font-sans">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#111827] font-sans">
             {sortedResults.length} {sortedResults.length === 1 ? "Laptop Matches" : "Laptops Match"} Your Requirements
           </h2>
-          <p className="text-xs sm:text-sm text-surface-400 mt-1 font-normal">
+          <p className="text-xs sm:text-sm text-[#64748B] mt-1 font-normal">
             Personalized recommendations with verified {activeCurrency} pricing for {input.primaryUse.toLowerCase()} workloads.
           </p>
         </div>
@@ -545,12 +477,12 @@ export function AdvisorResults({
           {/* Sorting Dropdown */}
           {sortedResults.length > 1 && (
             <div className="flex items-center gap-2">
-              <SlidersHorizontal className="h-3.5 w-3.5 text-surface-400" />
+              <SlidersHorizontal className="h-3.5 w-3.5 text-[#64748B]" />
               <select
                 value={sortOption}
                 onChange={(e) => setSortOption(e.target.value as AdvisorSortOption)}
                 aria-label="Sort advisor results"
-                className="bg-surface-900 border border-surface-700 text-xs font-semibold text-surface-200 rounded-xl px-3 py-1.5 focus:border-brand-400 focus:outline-none transition-all cursor-pointer hover:border-surface-600"
+                className="bg-white border border-[#E2E8F0] text-xs font-semibold text-[#111827] rounded-xl px-3 py-1.5 focus:border-teal-500 focus:outline-none transition-all cursor-pointer shadow-xs"
               >
                 <option value="match">Best Match (Default)</option>
                 <option value="price-asc">Lowest Price</option>
@@ -564,11 +496,11 @@ export function AdvisorResults({
 
       {/* Relaxed / Partial Match Notification (If applicable) */}
       {isRelaxed && (
-        <div className="rounded-2xl border border-amber-500/40 bg-amber-950/20 p-5 text-amber-200 text-sm space-y-1.5 flex items-start gap-3">
-          <AlertTriangle className="h-5 w-5 text-amber-400 shrink-0 mt-0.5" />
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-amber-900 text-sm space-y-1.5 flex items-start gap-3 shadow-xs">
+          <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
           <div>
-            <div className="font-bold text-amber-300">No exact 100% matches found.</div>
-            <p className="text-xs text-surface-300 leading-relaxed font-normal">
+            <div className="font-bold text-amber-900">No exact 100% matches found.</div>
+            <p className="text-xs text-amber-800 leading-relaxed font-normal">
               {relaxedReason || "Some of your chosen constraints conflicted. We have provided the closest high-performing alternatives."}
             </p>
           </div>
@@ -579,8 +511,8 @@ export function AdvisorResults({
       {topMatches.length > 0 && (
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <Trophy className="h-4 w-4 text-brand-400" />
-            <h3 className="text-base font-bold text-white font-sans uppercase tracking-wider text-xs">
+            <Trophy className="h-4 w-4 text-teal-600" />
+            <h3 className="text-base font-bold text-[#111827] font-sans uppercase tracking-wider text-xs">
               Top Recommendations ({topMatches.length})
             </h3>
           </div>
@@ -593,12 +525,12 @@ export function AdvisorResults({
 
       {/* SECTION 2: More Matching Laptops (All remaining qualifying products) */}
       {remainingMatches.length > 0 && (
-        <div className="pt-8 space-y-4 border-t border-surface-800/80">
+        <div className="pt-8 space-y-4 border-t border-[#E2E8F0]">
           <div>
-            <h3 className="text-lg font-bold text-white font-sans">
+            <h3 className="text-lg font-bold text-[#111827] font-sans">
               More Laptops Matching Your Requirements ({remainingMatches.length})
             </h3>
-            <p className="text-xs text-surface-400 mt-0.5">
+            <p className="text-xs text-[#64748B] mt-0.5">
               Additional qualifying options from the catalog that fit your {input.primaryUse} and budget criteria in {activeCurrency}.
             </p>
           </div>

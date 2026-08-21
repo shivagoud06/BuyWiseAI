@@ -10,8 +10,8 @@ export function Card({ className, glow = false, children, ...props }: CardProps)
   return (
     <div
       className={cn(
-        "rounded-2xl bg-surface-900/60 border border-surface-800/80 p-6 backdrop-blur-md transition-all duration-300",
-        glow && "hover:border-brand-500/40 hover:shadow-glow-sm",
+        "rounded-2xl bg-white border border-[#E2E8F0] p-6 shadow-card-light transition-all duration-200",
+        glow && "hover:border-[#0EA5A4] hover:shadow-card-hover",
         className
       )}
       {...props}
@@ -31,7 +31,7 @@ export function CardHeader({ className, children, ...props }: React.HTMLAttribut
 
 export function CardTitle({ className, children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
   return (
-    <h3 className={cn("text-lg font-semibold tracking-tight text-white", className)} {...props}>
+    <h3 className={cn("text-lg font-bold tracking-tight text-[#111827] font-sans", className)} {...props}>
       {children}
     </h3>
   );
@@ -39,7 +39,7 @@ export function CardTitle({ className, children, ...props }: React.HTMLAttribute
 
 export function CardDescription({ className, children, ...props }: React.HTMLAttributes<HTMLParagraphElement>) {
   return (
-    <p className={cn("text-sm text-surface-400 leading-relaxed", className)} {...props}>
+    <p className={cn("text-sm text-[#64748B] leading-relaxed", className)} {...props}>
       {children}
     </p>
   );

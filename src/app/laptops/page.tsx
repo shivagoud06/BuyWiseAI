@@ -13,10 +13,8 @@ import {
   X,
   Laptop as LaptopIcon,
   Sparkles,
-  RotateCcw
+  RotateCcw,
 } from "lucide-react";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
 import { analytics } from "@/lib/analytics";
 
 function LaptopFinderContent() {
@@ -43,21 +41,11 @@ function LaptopFinderContent() {
     const brand = searchParams.get("brand");
     const sort = searchParams.get("sort") as SortOption | null;
 
-    if (q) {
-      setFilters((prev) => ({ ...prev, searchQuery: q }));
-    }
-    if (useCase) {
-      setFilters((prev) => ({ ...prev, useCases: [useCase as UseCaseType] }));
-    }
-    if (budget) {
-      setFilters((prev) => ({ ...prev, priceRanges: [budget] }));
-    }
-    if (brand) {
-      setFilters((prev) => ({ ...prev, brands: [brand as any] }));
-    }
-    if (sort) {
-      setSortOption(sort);
-    }
+    if (q) setFilters((prev) => ({ ...prev, searchQuery: q }));
+    if (useCase) setFilters((prev) => ({ ...prev, useCases: [useCase as UseCaseType] }));
+    if (budget) setFilters((prev) => ({ ...prev, priceRanges: [budget] }));
+    if (brand) setFilters((prev) => ({ ...prev, brands: [brand as any] }));
+    if (sort) setSortOption(sort);
   }, [searchParams]);
 
   const handleResetFilters = () => {
@@ -73,7 +61,6 @@ function LaptopFinderContent() {
     setSortOption("recommended");
   };
 
-  // Instant Smart Search & Proximity Fallback Engine
   const searchResult = useMemo(() => {
     return findSmartSearchResults(LAPTOPS, filters, sortOption);
   }, [filters, sortOption]);
@@ -82,7 +69,6 @@ function LaptopFinderContent() {
   useEffect(() => {
     const q = filters.searchQuery?.trim();
     if (!q || q.length < 2) return;
-
     const timer = setTimeout(() => {
       const matchedIds = searchResult.exactMatches.slice(0, 5).map((l) => l.id);
       analytics.trackSearch({
@@ -91,11 +77,14 @@ function LaptopFinderContent() {
         matchedProductIds: matchedIds,
       });
     }, 600);
-
     return () => clearTimeout(timer);
   }, [filters.searchQuery, searchResult.exactMatches]);
 
-  const displayedLaptops = searchResult.exactMatches.length > 0 ? searchResult.exactMatches : searchResult.fallbackMatches;
+  const displayedLaptops =
+    searchResult.exactMatches.length > 0
+      ? searchResult.exactMatches
+      : searchResult.fallbackMatches;
+
   const availableCatalogCount = LAPTOPS.filter((l) => !l.isUpcoming).length;
 
   const activeFilterCount =
@@ -107,38 +96,40 @@ function LaptopFinderContent() {
     filters.useCases.length;
 
   return (
-    <div className="min-h-screen py-8 sm:py-12">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Page Header */}
-        <div className="mb-8 sm:mb-10">
-          <div className="inline-flex items-center gap-2 mb-3">
-            <Badge variant="brand" size="sm" className="font-medium text-xs">
-              <LaptopIcon className="h-3.5 w-3.5 text-brand-400" />
-              <span>India Edition • Verified INR Pricing</span>
-            </Badge>
+    /* ── SHOP PAGE LIGHT THEME WRAPPER ── */
+    <div className="shop-page min-h-screen">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+
+        {/* ── Page Header ── */}
+        <div className="mb-6">
+          <div className="inline-flex items-center gap-1.5 mb-2">
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-700 bg-brand-50 border border-brand-200 px-2.5 py-1 rounded-full">
+              <LaptopIcon className="h-3 w-3" />
+              India Edition · Verified INR Pricing
+            </span>
           </div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white mb-3 font-sans">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-shop-text mb-2">
             Find the Right Laptop
           </h1>
-          <p className="text-sm sm:text-base text-surface-300 max-w-2xl font-normal">
+          <p className="text-sm text-shop-muted max-w-2xl font-normal">
             Compare real laptop configurations across Indian market retailers by verified price, BuyWise specs rating, battery, and workload fit.
           </p>
         </div>
 
-        {/* Global Search Bar */}
-        <div className="relative mb-8">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-surface-400" />
+        {/* ── Global Search Bar ── */}
+        <div className="relative mb-5">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-shop-muted pointer-events-none" />
           <input
             type="text"
-            placeholder="Search by brand, exact model, CPU, RTX GPU, or workload (e.g. 'OLED', 'MacBook Air M2', 'RTX 4060', 'Ryzen 7')..."
+            placeholder="Search brand, model, CPU, GPU or workload (e.g. 'RTX 4060', 'MacBook Air M2', 'Ryzen 7')…"
             value={filters.searchQuery}
             onChange={(e) => setFilters((prev) => ({ ...prev, searchQuery: e.target.value }))}
-            className="w-full pl-12 pr-12 py-3.5 bg-surface-900/90 border border-surface-750 focus:border-brand-400 rounded-2xl text-sm sm:text-base text-white placeholder-surface-500 transition-all outline-none shadow-lg shadow-black/20"
+            className="w-full pl-11 pr-11 py-3 bg-white border border-shop-border focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 rounded-xl text-sm text-shop-text placeholder-shop-muted transition-all outline-none shadow-sm"
           />
           {filters.searchQuery && (
             <button
               onClick={() => setFilters((prev) => ({ ...prev, searchQuery: "" }))}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-surface-400 hover:text-white p-1"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-shop-muted hover:text-shop-text p-1 rounded-md hover:bg-gray-100 transition-colors"
               aria-label="Clear search"
             >
               <X className="h-4 w-4" />
@@ -146,85 +137,84 @@ function LaptopFinderContent() {
           )}
         </div>
 
-        {/* Top Controls Bar: Mobile filter trigger + Active Filter Badges + Sorting */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 mb-6 border-b border-surface-800/80">
-          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-            {/* Mobile Filter Sheet Button */}
-            <Button
+        {/* ── Top Controls: Filter trigger + count + active filters ── */}
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-6 pb-5 border-b border-shop-border">
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Mobile Filter Button */}
+            <button
               type="button"
-              variant="outline"
-              size="sm"
               onClick={() => setMobileFilterOpen(true)}
-              className="lg:hidden flex items-center gap-2 border-surface-700 text-xs font-semibold"
+              className="lg:hidden inline-flex items-center gap-2 text-xs font-semibold text-shop-text bg-white border border-shop-border px-3 py-1.5 rounded-lg hover:border-brand-400 hover:text-brand-600 transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
-              <SlidersHorizontal className="h-4 w-4 text-brand-400" />
-              <span>Filters</span>
+              <SlidersHorizontal className="h-3.5 w-3.5 text-brand-500" />
+              Filters
               {activeFilterCount > 0 && (
-                <span className="ml-1 h-5 w-5 rounded-full bg-brand-500 text-surface-950 text-[10px] font-bold flex items-center justify-center">
+                <span className="h-5 w-5 rounded-full bg-brand-500 text-white text-[10px] font-bold flex items-center justify-center ml-0.5">
                   {activeFilterCount}
                 </span>
               )}
-            </Button>
+            </button>
 
-            {/* Laptop Count Indicator */}
-            <span className="text-xs sm:text-sm text-surface-400 font-medium ml-1">
-              Showing <strong className="text-white font-semibold">{displayedLaptops.length}</strong> {searchResult.isFallback ? "closest alternatives " : ""}of {availableCatalogCount} verified laptops
+            {/* Result count */}
+            <span className="text-sm text-shop-muted font-normal">
+              Showing{" "}
+              <strong className="text-shop-text font-semibold">{displayedLaptops.length}</strong>
+              {searchResult.isFallback ? " closest alternatives " : " "}
+              of <strong className="text-shop-text font-semibold">{availableCatalogCount}</strong> verified laptops
             </span>
 
-            {/* Clear all active filters */}
+            {/* Clear all filters */}
             {activeFilterCount > 0 && (
               <button
                 onClick={handleResetFilters}
-                className="inline-flex items-center gap-1 text-xs text-brand-400 hover:text-brand-300 font-semibold ml-2 transition-colors"
+                className="inline-flex items-center gap-1 text-xs text-brand-600 hover:text-brand-700 font-semibold ml-1 transition-colors"
               >
                 <RotateCcw className="h-3 w-3" />
-                <span>Reset all ({activeFilterCount})</span>
+                Reset all ({activeFilterCount})
               </button>
             )}
           </div>
 
           {/* Sort Dropdown */}
-          <div className="flex items-center gap-2.5 self-end sm:self-auto">
-            <span className="text-xs text-surface-400 font-medium hidden sm:inline">Sort by:</span>
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-xs text-shop-muted font-medium hidden sm:inline">Sort:</span>
             <select
               value={sortOption}
               onChange={(e) => setSortOption(e.target.value as SortOption)}
               aria-label="Sort laptops"
-              className="bg-surface-900 border border-surface-700 text-xs font-semibold text-surface-200 rounded-xl px-3.5 py-2 focus:border-brand-400 focus:outline-none transition-all cursor-pointer hover:border-surface-600 shadow-sm"
+              className="bg-white border border-shop-border text-xs font-semibold text-shop-text rounded-lg px-3 py-1.5 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/30 transition-all cursor-pointer hover:border-gray-400 shadow-sm"
             >
               <option value="recommended">BuyWise Recommended</option>
               <option value="lowest-listed-price">Lowest Listed Price</option>
               <option value="score-desc">BuyWise Score (High to Low)</option>
               <option value="best-value">Best Value Rating</option>
-              <option value="price-asc">Price (Low to High)</option>
-              <option value="price-desc">Price (High to Low)</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
               <option value="rating-desc">Customer Rating</option>
             </select>
           </div>
         </div>
 
-        {/* Main Workspace: Desktop Sidebar Filters + Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
+        {/* ── Main Workspace: Desktop Sidebar + Grid ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-8 items-start">
+
           {/* Desktop Filter Sidebar */}
-          <aside className="hidden lg:block lg:col-span-1 sticky top-24 space-y-6">
-            <div className="p-5 rounded-2xl bg-surface-900/60 border border-surface-800 backdrop-blur-md space-y-6">
-              <div className="flex items-center justify-between pb-3 border-b border-surface-800/80">
+          <aside className="hidden lg:block sticky top-24">
+            <div className="bg-white border border-shop-border rounded-xl p-4 shadow-sm">
+              <div className="flex items-center justify-between pb-3 mb-3 border-b border-shop-border">
                 <div className="flex items-center gap-2">
-                  <SlidersHorizontal className="h-4 w-4 text-brand-400" />
-                  <h2 className="text-sm font-bold uppercase tracking-wider text-white font-sans">
-                    Refine Results
-                  </h2>
+                  <SlidersHorizontal className="h-4 w-4 text-brand-500" />
+                  <h2 className="text-sm font-bold text-shop-text">Refine Results</h2>
                 </div>
                 {activeFilterCount > 0 && (
                   <button
                     onClick={handleResetFilters}
-                    className="text-[11px] font-semibold text-surface-400 hover:text-brand-400 transition-colors"
+                    className="text-[11px] font-semibold text-brand-600 hover:text-brand-700 transition-colors"
                   >
                     Reset
                   </button>
                 )}
               </div>
-
               <LaptopFilters
                 filters={filters}
                 onChange={setFilters}
@@ -234,8 +224,8 @@ function LaptopFinderContent() {
             </div>
           </aside>
 
-          {/* Product Grid / Empty State */}
-          <main className="lg:col-span-3">
+          {/* Product Grid */}
+          <main>
             <LaptopGrid
               laptops={displayedLaptops}
               upcomingLaptops={searchResult.upcomingMatches}
@@ -247,69 +237,69 @@ function LaptopFinderContent() {
               sortOption={sortOption}
               onSortChange={setSortOption}
               onResetFilters={handleResetFilters}
-              onSelectSuggestion={(sug) => setFilters((prev) => ({ ...prev, searchQuery: sug }))}
+              onSelectSuggestion={(sug) =>
+                setFilters((prev) => ({ ...prev, searchQuery: sug }))
+              }
             />
           </main>
         </div>
 
-        {/* Mobile Filter Drawer Modal */}
+        {/* ── Mobile Filter Drawer ── */}
         {mobileFilterOpen && (
           <div className="fixed inset-0 z-50 flex lg:hidden">
             {/* Backdrop */}
             <div
-              className="fixed inset-0 bg-surface-950/80 backdrop-blur-sm animate-fadeIn"
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm animate-fadeIn"
               onClick={() => setMobileFilterOpen(false)}
             />
 
             {/* Slide-over panel */}
-            <div className="relative ml-auto w-full max-w-xs h-full bg-surface-900 border-l border-surface-800 p-6 flex flex-col justify-between shadow-2xl z-10 animate-fadeIn">
-              <div className="flex items-center justify-between pb-4 border-b border-surface-800">
-                <div className="flex items-center gap-2">
-                  <SlidersHorizontal className="h-4 w-4 text-brand-400" />
-                  <h3 className="text-base font-bold text-white font-sans">Filters</h3>
-                  {activeFilterCount > 0 && (
-                    <Badge variant="brand" size="sm" className="text-[10px]">
-                      {activeFilterCount}
-                    </Badge>
-                  )}
+            <div className="relative ml-auto w-full max-w-xs h-full bg-white border-l border-shop-border p-5 flex flex-col justify-between shadow-2xl z-10 animate-fadeIn">
+              <div>
+                <div className="flex items-center justify-between pb-4 mb-4 border-b border-shop-border">
+                  <div className="flex items-center gap-2">
+                    <SlidersHorizontal className="h-4 w-4 text-brand-500" />
+                    <h3 className="text-base font-bold text-shop-text">Filters</h3>
+                    {activeFilterCount > 0 && (
+                      <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-brand-500 text-white text-[10px] font-bold">
+                        {activeFilterCount}
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => setMobileFilterOpen(false)}
+                    className="p-1.5 rounded-lg text-shop-muted hover:text-shop-text hover:bg-gray-100 transition-colors"
+                    aria-label="Close filters"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
                 </div>
+
+                <div className="overflow-y-auto max-h-[calc(100vh-180px)] pr-1 space-y-4">
+                  <LaptopFilters
+                    filters={filters}
+                    onChange={setFilters}
+                    onReset={handleResetFilters}
+                    totalResults={displayedLaptops.length}
+                  />
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-shop-border flex gap-3">
                 <button
-                  onClick={() => setMobileFilterOpen(false)}
-                  className="p-1 rounded-lg text-surface-400 hover:text-white"
-                  aria-label="Close filters"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-
-              <div className="py-4 overflow-y-auto flex-1 pr-1 space-y-6">
-                <LaptopFilters
-                  filters={filters}
-                  onChange={setFilters}
-                  onReset={handleResetFilters}
-                  totalResults={displayedLaptops.length}
-                />
-              </div>
-
-              <div className="pt-4 border-t border-surface-800 flex gap-3">
-                <Button
                   type="button"
-                  variant="outline"
-                  size="sm"
                   onClick={handleResetFilters}
-                  className="w-1/2 text-xs font-semibold border-surface-700"
+                  className="flex-1 text-xs font-semibold text-shop-text bg-white border border-shop-border py-2 rounded-lg hover:border-gray-400 transition-all"
                 >
                   Reset All
-                </Button>
-                <Button
+                </button>
+                <button
                   type="button"
-                  variant="primary"
-                  size="sm"
                   onClick={() => setMobileFilterOpen(false)}
-                  className="w-1/2 text-xs font-bold"
+                  className="flex-1 text-xs font-bold text-white bg-brand-500 hover:bg-brand-600 py-2 rounded-lg transition-all"
                 >
-                  Apply ({displayedLaptops.length})
-                </Button>
+                  Show {displayedLaptops.length} Results
+                </button>
               </div>
             </div>
           </div>
@@ -323,10 +313,10 @@ export default function LaptopsPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center py-20">
+        <div className="shop-page min-h-screen flex items-center justify-center py-20">
           <div className="flex flex-col items-center gap-3">
             <div className="h-8 w-8 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
-            <p className="text-xs text-surface-400 font-medium">Loading BuyWise catalog...</p>
+            <p className="text-xs text-shop-muted font-medium">Loading BuyWise catalog…</p>
           </div>
         </div>
       }

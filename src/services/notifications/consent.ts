@@ -269,3 +269,45 @@ export function checkDuplicateOrCooldown(
 
   return { isDuplicate, isCooldownActive };
 }
+
+/**
+ * Marks all notifications in history as read
+ */
+export function markAllNotificationsRead(): SmartNotification[] {
+  const history = getNotificationHistory();
+  const updated = history.map((n) => ({ ...n, read: true }));
+  inMemoryHistory = updated;
+  if (isBrowser()) {
+    try {
+      window.localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(updated));
+    } catch {
+      // Storage fallback
+    }
+  }
+  return updated;
+}
+
+/**
+ * Marks a specific notification as read
+ */
+export function markNotificationRead(id: string): SmartNotification[] {
+  const history = getNotificationHistory();
+  const updated = history.map((n) => (n.id === id ? { ...n, read: true } : n));
+  inMemoryHistory = updated;
+  if (isBrowser()) {
+    try {
+      window.localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(updated));
+    } catch {
+      // Storage fallback
+    }
+  }
+  return updated;
+}
+
+/**
+ * Gets count of unread notifications
+ */
+export function getUnreadNotificationCount(): number {
+  const history = getNotificationHistory();
+  return history.filter((n) => !n.read).length;
+}

@@ -3,18 +3,29 @@
 @tailwind utilities;
 
 :root {
-  --background: #060b13;
-  --foreground: #f1f5f9;
+  --background: #F5F7FA;
+  --foreground: #111827;
+  --buywise-teal: #0EA5A4;
+  --buywise-teal-dark: #087F7E;
+  --buywise-teal-light: #E6FFFE;
+  --buywise-border: #E2E8F0;
+  --buywise-text-primary: #111827;
+  --buywise-text-secondary: #64748B;
+  --buywise-text-muted: #94A3B8;
+  --buywise-success: #16A34A;
+  --buywise-warning: #F59E0B;
+  --buywise-error: #DC2626;
+  --buywise-info: #2563EB;
 }
 
 @layer base {
   * {
-    border-color: #1e293b;
+    border-color: #E2E8F0;
   }
-  
+
   html {
     scroll-behavior: smooth;
-    color-scheme: dark;
+    color-scheme: light;
   }
 
   body {
@@ -27,22 +38,22 @@
   }
 }
 
-/* Custom subtle scrollbar */
+/* Light scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #060b13;
+  background: #F1F5F9;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #CBD5E1;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #94A3B8;
 }
 
 @keyframes fadeIn {
@@ -57,7 +68,7 @@
 }
 
 .animate-fadeIn {
-  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 /* Respect user's motion preferences */
@@ -70,4 +81,13 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+.shop-page {
+  background-color: #F5F7FA;
+  color: #111827;
+}
+
+.shop-checkbox {
+  accent-color: #0EA5A4;
 }

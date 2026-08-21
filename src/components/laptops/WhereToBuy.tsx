@@ -46,35 +46,25 @@ export function WhereToBuy({
   const sortedOffers = sortRetailerOffers(validatedOffers, sortOption);
   const bestOffer = getBestListedPrice(validatedOffers, effectiveCurrency);
 
-  const isValidUrl = (url?: string | null): boolean => {
-    if (!url || typeof url !== "string" || url.trim().length === 0) return false;
-    try {
-      const u = new URL(url);
-      return u.protocol === "http:" || u.protocol === "https:";
-    } catch {
-      return url.startsWith("http://") || url.startsWith("https://");
-    }
-  };
-
   const getAvailabilityBadge = (status: RetailerOffer["availability"]) => {
     switch (status) {
       case "in-stock":
         return (
-          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md">
+          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
             <CheckCircle2 className="h-3 w-3" />
             In Stock
           </span>
         );
       case "limited-stock":
         return (
-          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-md">
+          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md">
             <AlertTriangle className="h-3 w-3" />
             Limited Stock
           </span>
         );
       case "pre-order":
         return (
-          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-sky-400 bg-sky-500/10 border border-sky-500/20 px-2 py-0.5 rounded-md">
+          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-sky-700 bg-sky-50 border border-sky-200 px-2 py-0.5 rounded-md">
             <Clock className="h-3 w-3" />
             Pre-Order
           </span>
@@ -82,7 +72,7 @@ export function WhereToBuy({
       case "out-of-stock":
       default:
         return (
-          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-400 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-md">
+          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-md">
             <XCircle className="h-3 w-3" />
             NOT AVAILABLE
           </span>
@@ -113,7 +103,7 @@ export function WhereToBuy({
               source: "product_page",
             })
           }
-          className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-surface-950 bg-brand-500 hover:bg-brand-400 shadow-md shadow-brand-500/10 transition-all shrink-0 w-full sm:w-auto"
+          className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-brand-500 hover:bg-brand-600 shadow-sm transition-all shrink-0 w-full sm:w-auto"
         >
           <span>BUY NOW →</span>
           <ExternalLink className="h-3.5 w-3.5 stroke-[2.5]" />
@@ -129,7 +119,7 @@ export function WhereToBuy({
           variant="outline"
           size="sm"
           disabled
-          className="text-xs font-semibold shrink-0 border-surface-800 text-surface-500 opacity-60 cursor-not-allowed w-full sm:w-auto justify-center"
+          className="text-xs font-semibold shrink-0 border-[#E5E7EB] bg-gray-50 text-[#9CA3AF] opacity-80 cursor-not-allowed w-full sm:w-auto justify-center"
         >
           <span>NOT AVAILABLE</span>
         </Button>
@@ -143,20 +133,18 @@ export function WhereToBuy({
         variant="outline"
         size="sm"
         disabled
-        className="text-xs font-semibold shrink-0 border-surface-800 text-surface-400 bg-surface-900/60 opacity-80 cursor-not-allowed w-full sm:w-auto justify-center"
+        className="text-xs font-semibold shrink-0 border-[#E5E7EB] text-[#6B7280] bg-gray-50 opacity-80 cursor-not-allowed w-full sm:w-auto justify-center"
       >
         <span>COMING SOON</span>
       </Button>
     );
   };
 
-  const hasMockOffers = sortedOffers.some((o) => o.source === "mock" || o.isMock);
-
   // Compact Mode (for embedding in cards, AI Advisor, or widgets)
   if (compact) {
     if (sortedOffers.length === 0) {
       return (
-        <div className="rounded-xl border border-surface-800 bg-surface-950/40 p-3 text-center text-xs text-surface-400">
+        <div className="rounded-xl border border-[#E5E7EB] bg-gray-50 p-3 text-center text-xs text-[#6B7280]">
           Live retailer pricing unavailable
         </div>
       );
@@ -166,13 +154,13 @@ export function WhereToBuy({
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <Store className="h-3.5 w-3.5 text-brand-400" />
-            <span className="text-xs font-bold uppercase tracking-wider text-white">
+            <Store className="h-3.5 w-3.5 text-brand-600" />
+            <span className="text-xs font-bold uppercase tracking-wider text-[#111827]">
               Where to Buy
             </span>
           </div>
           {bestOffer && (
-            <span className="text-[11px] font-bold text-brand-300">
+            <span className="text-[11px] font-bold text-brand-700">
               🏆 Best Listed: {formatCurrency(bestOffer.price, bestOffer.currency)} ({bestOffer.retailerName})
             </span>
           )}
@@ -188,10 +176,10 @@ export function WhereToBuy({
             return (
               <div
                 key={offer.retailerId}
-                className={`p-3 rounded-xl border transition-all flex flex-col justify-between gap-2 ${
+                className={`p-3 rounded-xl border transition-all flex flex-col justify-between gap-2 shadow-sm ${
                   isBestPrice
-                    ? "border-brand-500/40 bg-brand-950/20"
-                    : "border-surface-800 bg-surface-900/60"
+                    ? "border-brand-300 bg-brand-50/50"
+                    : "border-[#E5E7EB] bg-white"
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">
@@ -201,19 +189,19 @@ export function WhereToBuy({
                       retailerName={offer.retailerName}
                       size="sm"
                     />
-                    <span className="text-xs font-bold text-white truncate">
+                    <span className="text-xs font-bold text-[#111827] truncate">
                       {offer.retailerName}
                     </span>
                   </div>
                   {isBestPrice && (
-                    <span className="px-1.5 py-0.5 rounded bg-brand-500 text-surface-950 text-[9px] font-extrabold uppercase shrink-0">
+                    <span className="px-1.5 py-0.5 rounded bg-brand-500 text-white text-[9px] font-extrabold uppercase shrink-0">
                       🏆 Best
                     </span>
                   )}
                 </div>
 
                 <div className="flex items-baseline justify-between gap-2">
-                  <span className="text-sm font-bold text-white font-sans">
+                  <span className="text-sm font-bold text-[#111827] font-sans">
                     {formatCurrency(offer.price, offer.currency)}
                   </span>
                   {getAvailabilityBadge(offer.availability)}
@@ -230,13 +218,13 @@ export function WhereToBuy({
 
   // Full Details Mode
   return (
-    <section className="py-10 border-t border-surface-800/80 space-y-6">
+    <section className="py-8 border-t border-[#E5E7EB] space-y-5">
       {/* Section Header & Sort Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <Store className="h-4 w-4 text-brand-400" />
-            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white font-sans">
+          <div className="flex items-center gap-2 mb-1">
+            <Store className="h-4 w-4 text-brand-600" />
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-[#111827] font-sans">
               Where to Buy
             </h2>
             {sortedOffers.length > 0 && (
@@ -245,7 +233,7 @@ export function WhereToBuy({
               </Badge>
             )}
           </div>
-          <p className="text-xs sm:text-sm text-surface-400">
+          <p className="text-xs sm:text-sm text-[#6B7280]">
             Compare listed prices across trusted retailers for this exact laptop configuration.
           </p>
         </div>
@@ -253,12 +241,12 @@ export function WhereToBuy({
         {/* Sort Selector */}
         {sortedOffers.length > 1 && (
           <div className="flex items-center gap-2 self-start sm:self-auto">
-            <SlidersHorizontal className="h-3.5 w-3.5 text-surface-400" />
+            <SlidersHorizontal className="h-3.5 w-3.5 text-[#6B7280]" />
             <select
               value={sortOption}
               aria-label="Sort retailer offers"
               onChange={(e) => setSortOption(e.target.value as RetailerSortOption)}
-              className="bg-surface-900 border border-surface-700 text-xs font-semibold text-surface-200 rounded-xl px-3 py-1.5 focus:border-brand-400 focus:outline-none"
+              className="bg-white border border-[#E5E7EB] text-xs font-semibold text-[#111827] rounded-xl px-3 py-1.5 focus:border-brand-500 focus:outline-none shadow-sm"
             >
               <option value="price-asc">Lowest Listed Price</option>
               <option value="discount-desc">Highest Discount</option>
@@ -278,12 +266,12 @@ export function WhereToBuy({
               offer.availability !== "out-of-stock";
 
             return (
-              <Card
+              <div
                 key={offer.retailerId}
-                className={`p-4 sm:p-5 rounded-2xl border transition-all ${
+                className={`p-4 sm:p-5 rounded-2xl border transition-all shadow-sm ${
                   isBestPrice
-                    ? "border-brand-500/50 bg-brand-950/20 shadow-lg shadow-brand-500/5"
-                    : "border-surface-800 bg-surface-900/60 hover:border-surface-700"
+                    ? "border-brand-300 bg-brand-50/50"
+                    : "border-[#E5E7EB] bg-white hover:border-gray-300"
                 }`}
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -296,24 +284,24 @@ export function WhereToBuy({
                     />
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm sm:text-base font-bold text-white font-sans">
+                        <span className="text-sm sm:text-base font-bold text-[#111827] font-sans">
                           {offer.retailerName}
                         </span>
                         {isBestPrice && (
-                          <span className="px-2 py-0.5 rounded-md bg-brand-500 text-surface-950 text-[10px] font-extrabold tracking-wide flex items-center gap-1 shadow-sm">
+                          <span className="px-2 py-0.5 rounded-md bg-brand-500 text-white text-[10px] font-extrabold tracking-wide flex items-center gap-1 shadow-sm">
                             <Sparkles className="h-2.5 w-2.5" />
                             🏆 BEST LISTED PRICE
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-2 mt-0.5 text-xs text-surface-400 flex-wrap">
+                      <div className="flex items-center gap-2 mt-0.5 text-xs text-[#6B7280] flex-wrap">
                         {getAvailabilityBadge(offer.availability)}
                         {offer.offerText && (
-                          <span className="text-surface-400">
+                          <span className="text-[#6B7280]">
                             • {offer.offerText}
                           </span>
                         )}
-                        <span className="text-[10px] text-surface-500 flex items-center gap-1">
+                        <span className="text-[10px] text-[#9CA3AF] flex items-center gap-1">
                           <Clock className="h-3 w-3" />
                           {offer.lastUpdated.startsWith("20") ? `Updated ${offer.lastUpdated}` : "Updated recently"}
                         </span>
@@ -322,18 +310,18 @@ export function WhereToBuy({
                   </div>
 
                   {/* Right: Price & Buy/View Button */}
-                  <div className="flex items-center justify-between sm:justify-end gap-5 pt-2 sm:pt-0 border-t sm:border-t-0 border-surface-800">
+                  <div className="flex items-center justify-between sm:justify-end gap-5 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#E5E7EB]">
                     <div className="text-left sm:text-right">
                       {offer.price && offer.price > 0 ? (
                         <>
-                          <div className="text-lg sm:text-xl font-bold text-white font-sans">
+                          <div className="text-lg sm:text-xl font-bold text-[#111827] font-sans">
                             {formatCurrency(offer.price, offer.currency)}
                           </div>
                           {offer.mrp && offer.mrp > offer.price && (
-                            <div className="text-[11px] text-surface-500 flex items-center sm:justify-end gap-1.5">
+                            <div className="text-[11px] text-[#9CA3AF] flex items-center sm:justify-end gap-1.5">
                               <span className="line-through">{formatCurrency(offer.mrp, offer.currency)}</span>
                               {offer.discount && (
-                                <span className="text-emerald-400 font-semibold">
+                                <span className="text-emerald-700 font-semibold">
                                   {offer.discount}% off
                                 </span>
                               )}
@@ -341,7 +329,7 @@ export function WhereToBuy({
                           )}
                         </>
                       ) : (
-                        <div className="text-xs text-surface-500 font-medium">
+                        <div className="text-xs text-[#9CA3AF] font-medium">
                           Price unavailable
                         </div>
                       )}
@@ -350,24 +338,24 @@ export function WhereToBuy({
                     {renderActionButton(offer)}
                   </div>
                 </div>
-              </Card>
+              </div>
             );
           })}
         </div>
       ) : (
-        <Card className="p-6 sm:p-8 rounded-2xl border-surface-800 bg-surface-900/40 text-center space-y-2">
-          <p className="text-sm sm:text-base text-surface-200 font-semibold">
+        <div className="p-6 sm:p-8 rounded-2xl border border-[#E5E7EB] bg-white text-center space-y-2 shadow-sm">
+          <p className="text-sm sm:text-base text-[#111827] font-semibold">
             Live retailer pricing unavailable
           </p>
-          <p className="text-xs text-surface-400 max-w-md mx-auto">
+          <p className="text-xs text-[#6B7280] max-w-md mx-auto">
             Retailer prices will appear when live offers are available from connected stores.
           </p>
           {laptop.price && (
-            <p className="text-xs text-surface-500 pt-1">
-              Official catalog reference price: <span className="font-semibold text-surface-300">{formatCurrency(laptop.price, laptop.currency)}</span>
+            <p className="text-xs text-[#9CA3AF] pt-1">
+              Official catalog reference price: <span className="font-semibold text-[#374151]">{formatCurrency(laptop.price, laptop.currency)}</span>
             </p>
           )}
-        </Card>
+        </div>
       )}
 
       {/* Transparent Bank Offers, Discounts & Effective Price Calculation (Only if real discount offers exist) */}
@@ -381,8 +369,8 @@ export function WhereToBuy({
       )}
 
       {/* Data Freshness & Source Disclaimer */}
-      <div className="rounded-xl border border-surface-800/80 bg-surface-900/30 p-3.5 text-xs text-surface-400 flex items-start gap-2.5">
-        <Info className="h-4 w-4 text-surface-500 shrink-0 mt-0.5" />
+      <div className="rounded-xl border border-[#E5E7EB] bg-white p-3.5 text-xs text-[#6B7280] flex items-start gap-2.5 shadow-sm">
+        <Info className="h-4 w-4 text-[#9CA3AF] shrink-0 mt-0.5" />
         <span>
           <strong>Verified listed prices:</strong> Offers are verified against exact model configuration and SKU matching from connected stores before being listed.
         </span>

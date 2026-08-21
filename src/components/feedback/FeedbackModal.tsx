@@ -1,9 +1,18 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Star, X, MessageSquare, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/Button";
-import { FeedbackCategory, VALID_FEEDBACK_CATEGORIES } from "@/services/feedback/types";
+import React, { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
+import {
+  X,
+  Lightbulb,
+  Bug,
+  MessageCircle,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  ArrowRight,
+} from "lucide-react";
+import { FeedbackCategory } from "@/services/feedback/types";
 import { analytics } from "@/lib/analytics";
 
 interface FeedbackModalProps {
@@ -14,6 +23,27 @@ interface FeedbackModalProps {
   source?: string;
 }
 
+const FEEDBACK_TYPES: { id: FeedbackCategory; title: string; subtitle: string; icon: React.ElementType }[] = [
+  {
+    id: "Suggestion",
+    title: "Suggestion",
+    subtitle: "New features or improvements you'd like to see",
+    icon: Lightbulb,
+  },
+  {
+    id: "Bug Report",
+    title: "Bug Report",
+    subtitle: "Something isn't working or specs look inaccurate",
+    icon: Bug,
+  },
+  {
+    id: "General Feedback",
+    title: "General Feedback",
+    subtitle: "Thoughts on your overall BuyWise experience",
+    icon: MessageCircle,
+  },
+];
+
 export function FeedbackModal({
   isOpen,
   onClose,
@@ -21,36 +51,72 @@ export function FeedbackModal({
   productName,
   source = "navbar",
 }: FeedbackModalProps) {
-  const [rating, setRating] = useState<number>(5);
-  const [hoverRating, setHoverRating] = useState<number | null>(null);
-  const [category, setCategory] = useState<FeedbackCategory>("Website");
+  const [category, setCategory] = useState<FeedbackCategory>("Suggestion");
   const [comment, setComment] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
+  const [includeBrowserInfo, setIncludeBrowserInfo] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [mounted, setMounted] = useState<boolean>(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
       setIsSuccess(false);
       setErrorMessage(null);
       analytics.trackFeedbackOpen({ source, productId });
+      setTimeout(() => {
+        if (textareaRef.current) textareaRef.current.focus();
+      }, 100);
     }
   }, [isOpen, source, productId]);
 
-  if (!isOpen) return null;
+  // ESC key to close
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen && !isSubmitting) {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, isSubmitting, onClose]);
+
+  if (!isOpen || !mounted) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const trimmed = comment.trim();
+
+    // Immediate client-side validation
+    if (!trimmed) {
+      setErrorMessage("Please enter your feedback.");
+      if (textareaRef.current) textareaRef.current.focus();
+      return;
+    }
+
+    if (trimmed.length > 500) {
+      setErrorMessage("Feedback must be 500 characters or less.");
+      return;
+    }
+
     setIsSubmitting(true);
     setErrorMessage(null);
 
     try {
+      const browserInfo =
+        includeBrowserInfo && typeof navigator !== "undefined"
+          ? ` [Browser: ${navigator.userAgent.slice(0, 100)}]`
+          : "";
+
       const payload = {
-        rating,
+        rating: 5,
         category,
-        comment: comment.trim(),
-        email: email.trim().length > 0 ? email.trim() : undefined,
+        comment: trimmed + browserInfo,
         productId,
         productName,
         feedbackType: "modal",
@@ -67,200 +133,215 @@ export function FeedbackModal({
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        setErrorMessage(data.error || "Failed to submit feedback. Please try again.");
+        setErrorMessage(data.error || "Unable to send feedback. Please try again.");
         setIsSubmitting(false);
         return;
       }
 
       setIsSuccess(true);
       analytics.trackFeedbackSubmit({
-        rating,
+        rating: 5,
         category,
-        hasComment: comment.trim().length > 0,
-        hasEmail: email.trim().length > 0,
+        hasComment: true,
         productId,
       });
 
+      // Auto dismiss modal after brief toast
       setTimeout(() => {
         setIsSuccess(false);
         setComment("");
-        setEmail("");
         onClose();
-      }, 2000);
+      }, 1800);
     } catch {
-      setErrorMessage("Network error. Please check your connection and try again.");
+      setErrorMessage("Unable to send feedback. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const starLabels = ["Poor", "Fair", "Good", "Very Good", "Excellent"];
-
-  return (
+  const modalContent = (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 sm:p-6 overflow-y-auto"
       role="dialog"
       aria-modal="true"
       aria-labelledby="feedback-modal-title"
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !isSubmitting) {
+          onClose();
+        }
+      }}
     >
-      <div className="relative w-full max-w-lg rounded-2xl border border-surface-800 bg-surface-900 shadow-2xl p-6 sm:p-8 space-y-6 animate-in fade-in zoom-in-95 duration-200">
+      <div
+        className="relative w-full max-w-[520px] max-h-[calc(100vh-32px)] my-auto rounded-2xl border border-[#E2E8F0] bg-white shadow-2xl p-6 sm:p-7 space-y-5 overflow-y-auto animate-fadeIn"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Close button */}
         <button
           onClick={onClose}
           type="button"
-          className="absolute top-4 right-4 p-2 rounded-lg text-surface-400 hover:text-white hover:bg-surface-800 transition-colors"
+          disabled={isSubmitting}
+          className="absolute top-4 right-4 p-2 rounded-lg text-[#64748B] hover:text-[#111827] hover:bg-slate-100 transition-colors"
           aria-label="Close feedback dialog"
         >
           <X className="h-5 w-5" />
         </button>
 
         {isSuccess ? (
-          <div className="py-8 text-center space-y-3">
-            <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mx-auto animate-bounce">
+          <div className="py-8 text-center space-y-3 animate-fadeIn">
+            <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#DCFCE7] text-[#16A34A] border border-[#BBF7D0] mx-auto shadow-xs">
               <CheckCircle2 className="h-8 w-8" />
             </div>
-            <h3 className="text-xl font-bold text-white font-sans">Thanks for your feedback!</h3>
-            <p className="text-sm text-surface-300 max-w-xs mx-auto">
-              Your feedback directly helps us improve BuyWise recommendations for Indian laptop buyers.
+            <h3 className="text-xl font-bold text-[#111827] font-sans">
+              ✓ Thanks for your feedback!
+            </h3>
+            <p className="text-sm text-[#64748B] max-w-xs mx-auto">
+              We really appreciate it. Your thoughts help us make BuyWise AI smarter and more helpful.
             </p>
           </div>
         ) : (
           <>
             {/* Header */}
-            <div className="space-y-1.5 pr-6">
-              <div className="flex items-center gap-2 text-brand-400 text-xs font-semibold uppercase tracking-wider">
-                <MessageSquare className="h-4 w-4" />
-                <span>BuyWise AI Feedback</span>
-              </div>
-              <h2 id="feedback-modal-title" className="text-xl sm:text-2xl font-bold text-white tracking-tight font-sans">
-                Share Your Feedback
+            <div className="space-y-1 pr-6">
+              <h2
+                id="feedback-modal-title"
+                className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight font-sans"
+              >
+                Help us improve BuyWise AI
               </h2>
-              <p className="text-xs sm:text-sm text-surface-400">
-                Help us make laptop shopping faster, transparent, and completely unbiased.
+              <p className="text-xs sm:text-sm text-[#64748B]">
+                Your feedback helps us make laptop recommendations better.
               </p>
             </div>
 
+            {/* Error Message Notice */}
             {errorMessage && (
-              <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs">
+              <div className="flex items-start gap-2.5 p-3 rounded-xl bg-[#FEE2E2] border border-[#FECACA] text-[#DC2626] text-xs">
                 <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
                 <span>{errorMessage}</span>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Star Rating */}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Feedback Type Selection Cards */}
               <div className="space-y-2">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-surface-300">
-                  How would you rate your experience? <span className="text-brand-400">*</span>
+                <label className="block text-xs font-bold uppercase tracking-wider text-[#475569]">
+                  Feedback Type
                 </label>
-                <div className="flex items-center gap-2 sm:gap-3">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      type="button"
-                      onClick={() => setRating(star)}
-                      onMouseEnter={() => setHoverRating(star)}
-                      onMouseLeave={() => setHoverRating(null)}
-                      className="p-1 rounded-lg hover:bg-surface-800 transition-transform active:scale-95 focus:outline-none focus:ring-2 focus:ring-brand-500"
-                      aria-label={`${star} star${star > 1 ? "s" : ""}`}
-                    >
-                      <Star
-                        className={`h-7 w-7 transition-colors ${
-                          star <= (hoverRating ?? rating)
-                            ? "fill-amber-400 text-amber-400"
-                            : "text-surface-600 hover:text-surface-400"
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  {FEEDBACK_TYPES.map((type) => {
+                    const isSelected = category === type.id;
+                    const Icon = type.icon;
+                    return (
+                      <button
+                        key={type.id}
+                        type="button"
+                        onClick={() => setCategory(type.id)}
+                        className={`p-3 rounded-xl border text-left transition-all flex flex-col justify-between gap-1 shadow-xs ${
+                          isSelected
+                            ? "border-[#0EA5A4] bg-[#E6FFFE] text-[#111827] ring-1 ring-[#0EA5A4]"
+                            : "border-[#E2E8F0] bg-white text-[#475569] hover:border-[#CBD5E1] hover:bg-slate-50"
                         }`}
-                      />
-                    </button>
-                  ))}
-                  <span className="text-xs font-medium text-surface-400 ml-2">
-                    {starLabels[(hoverRating ?? rating) - 1]}
-                  </span>
+                      >
+                        <div className="flex items-center justify-between w-full">
+                          <Icon className={`h-4 w-4 ${isSelected ? "text-[#0EA5A4]" : "text-[#64748B]"}`} />
+                          <span
+                            className={`h-3 w-3 rounded-full border flex items-center justify-center ${
+                              isSelected
+                                ? "border-[#0EA5A4] bg-[#0EA5A4]"
+                                : "border-[#CBD5E1] bg-white"
+                            }`}
+                          >
+                            {isSelected && <span className="h-1.5 w-1.5 rounded-full bg-white" />}
+                          </span>
+                        </div>
+                        <div>
+                          <div className="text-xs font-bold font-sans text-[#111827]">
+                            {type.title}
+                          </div>
+                          <div className="text-[10px] text-[#64748B] line-clamp-1">
+                            {type.subtitle}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* Category */}
-              <div className="space-y-1.5">
-                <label htmlFor="feedback-category" className="block text-xs font-semibold uppercase tracking-wider text-surface-300">
-                  Category <span className="text-brand-400">*</span>
-                </label>
-                <select
-                  id="feedback-category"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value as FeedbackCategory)}
-                  className="w-full rounded-xl border border-surface-700 bg-surface-800/80 px-3.5 py-2.5 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-                >
-                  {VALID_FEEDBACK_CATEGORIES.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Comment */}
+              {/* Feedback Message */}
               <div className="space-y-1.5">
                 <div className="flex justify-between items-center">
-                  <label htmlFor="feedback-comment" className="block text-xs font-semibold uppercase tracking-wider text-surface-300">
-                    Your Comments
+                  <label
+                    htmlFor="feedback-message"
+                    className="block text-xs font-bold uppercase tracking-wider text-[#475569]"
+                  >
+                    Your feedback <span className="text-[#0EA5A4]">*</span>
                   </label>
-                  <span className="text-[11px] text-surface-500">
-                    {comment.length}/1000
+                  <span
+                    className={`text-[11px] font-mono ${
+                      comment.length > 500 ? "text-[#DC2626] font-bold" : "text-[#94A3B8]"
+                    }`}
+                  >
+                    {comment.length} / 500
                   </span>
                 </div>
                 <textarea
-                  id="feedback-comment"
-                  rows={3}
-                  maxLength={1000}
+                  id="feedback-message"
+                  ref={textareaRef}
+                  rows={4}
+                  maxLength={500}
                   value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                  placeholder="Tell us what you liked, what felt inaccurate, or what could be improved..."
-                  className="w-full rounded-xl border border-surface-700 bg-surface-800/80 p-3.5 text-sm text-white placeholder:text-surface-500 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 resize-none"
+                  onChange={(e) => {
+                    setComment(e.target.value);
+                    if (errorMessage) setErrorMessage(null);
+                  }}
+                  placeholder="Tell us what you think..."
+                  className="w-full rounded-xl border border-[#E2E8F0] bg-white p-3.5 text-sm text-[#111827] placeholder:text-[#94A3B8] focus:border-[#0EA5A4] focus:outline-none focus:ring-2 focus:ring-[#0EA5A4]/20 resize-none shadow-xs"
                 />
               </div>
 
-              {/* Optional Email */}
-              <div className="space-y-1.5">
-                <label htmlFor="feedback-email" className="block text-xs font-semibold uppercase tracking-wider text-surface-300">
-                  Email <span className="text-[11px] font-normal text-surface-500 lowercase">(optional - for follow-up only)</span>
+              {/* Optional Browser Info Checkbox */}
+              <div className="pt-1">
+                <label className="flex items-start gap-2.5 text-xs text-[#64748B] cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={includeBrowserInfo}
+                    onChange={(e) => setIncludeBrowserInfo(e.target.checked)}
+                    className="mt-0.5 rounded border-[#CBD5E1] text-[#0EA5A4] focus:ring-[#0EA5A4]"
+                  />
+                  <span>
+                    <strong>Include browser information (optional):</strong> Helps us diagnose layout, device, or screen sizing issues anonymously.
+                  </span>
                 </label>
-                <input
-                  type="email"
-                  id="feedback-email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="your.email@example.com"
-                  className="w-full rounded-xl border border-surface-700 bg-surface-800/80 px-3.5 py-2.5 text-sm text-white placeholder:text-surface-500 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-                />
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center justify-end gap-3 pt-2">
-                <Button
+              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#E2E8F0]">
+                <button
                   type="button"
-                  variant="outline"
-                  size="sm"
                   onClick={onClose}
                   disabled={isSubmitting}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-[#475569] hover:text-[#111827] hover:bg-slate-100 transition-colors"
                 >
                   Cancel
-                </Button>
-                <Button
+                </button>
+                <button
                   type="submit"
-                  variant="primary"
-                  size="sm"
                   disabled={isSubmitting}
-                  className="min-w-[120px]"
+                  className="inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#0EA5A4] hover:bg-[#087F7E] active:scale-98 disabled:opacity-60 transition-all shadow-xs min-w-[140px]"
                 >
                   {isSubmitting ? (
                     <>
-                      <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
-                      Submitting...
+                      <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                      Sending...
                     </>
                   ) : (
-                    "Submit Feedback"
+                    <>
+                      <span>Send Feedback</span>
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </>
                   )}
-                </Button>
+                </button>
               </div>
             </form>
           </>
@@ -268,4 +349,6 @@ export function FeedbackModal({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }

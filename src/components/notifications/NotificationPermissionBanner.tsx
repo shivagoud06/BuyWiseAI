@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Bell, Sparkles, X, ShieldCheck } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+import { Bell, ShieldCheck, X } from "lucide-react";
 import {
   getNotificationConsent,
   grantNotificationConsent,
@@ -63,56 +62,48 @@ export function NotificationPermissionBanner() {
 
   return (
     <>
-      <div className="relative bg-gradient-to-r from-surface-950 via-surface-900 to-surface-950 border-b border-brand-500/20 py-2.5 px-4 text-xs">
-        <div className="mx-auto max-w-7xl flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5 text-surface-200">
-            <div className="p-1 rounded-md bg-brand-500/10 text-brand-400">
-              <Bell className="h-4 w-4" />
+      <div className="relative bg-[#E6FFFE] border-b border-[#99F6F3] py-2 px-4 text-xs shadow-xs">
+        <div className="mx-auto max-w-7xl flex flex-col sm:flex-row items-center justify-between gap-2.5">
+          <div className="flex items-center gap-2 text-[#334155]">
+            <div className="p-1 rounded-md bg-white text-[#0EA5A4] border border-[#99F6F3] shrink-0">
+              <Bell className="h-3.5 w-3.5" />
             </div>
             <span>
-              <strong className="text-white">Enable BuyWise notifications</strong> — Get instant verified price-drop & stock alerts for laptops you browse.
+              <strong className="text-[#111827]">Enable BuyWise alerts:</strong> Get verified price-drop &amp; stock notifications for laptops you browse.
             </span>
-            <span className="hidden md:inline-flex items-center gap-1 text-[11px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+            <span className="hidden md:inline-flex items-center gap-1 text-[11px] font-semibold text-[#16A34A] bg-[#DCFCE7] px-2 py-0.5 rounded-full border border-[#BBF7D0]">
               <ShieldCheck className="h-3 w-3" /> Anonymous
             </span>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            <Button
-              variant="primary"
-              size="sm"
+            <button
               onClick={handleEnable}
-              className="text-xs py-1 px-3 h-7 font-medium"
+              type="button"
+              className="text-xs py-1 px-3 rounded-lg font-bold text-white bg-[#0EA5A4] hover:bg-[#087F7E] shadow-xs transition-all"
             >
-              Enable Notifications
-            </Button>
+              Enable Alerts
+            </button>
             <button
               onClick={handleDismiss}
-              className="text-surface-400 hover:text-white px-2 py-1 text-xs transition-colors"
+              type="button"
+              className="text-[#64748B] hover:text-[#111827] px-2 py-1 text-xs transition-colors"
             >
               Maybe Later
             </button>
             <button
               onClick={() => setSettingsOpen(true)}
-              className="text-surface-400 hover:text-brand-400 px-1 py-1 text-xs transition-colors"
+              type="button"
+              className="text-[#0EA5A4] hover:text-[#087F7E] font-semibold px-1 py-1 text-xs transition-colors"
               title="Alert Preferences"
             >
               Settings
-            </button>
-            <button
-              onClick={handleDismiss}
-              className="text-surface-500 hover:text-white p-1 ml-1"
-              aria-label="Dismiss banner"
-            >
-              <X className="h-3.5 w-3.5" />
             </button>
           </div>
         </div>
       </div>
 
-      {settingsOpen && (
-        <NotificationSettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
-      )}
+      <NotificationSettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </>
   );
 }

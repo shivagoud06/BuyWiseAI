@@ -14,7 +14,6 @@ import {
   ArrowRight,
   Sparkles
 } from "lucide-react";
-import { Button } from "@/components/ui/Button";
 
 interface LaptopGridProps {
   laptops: Laptop[];
@@ -46,47 +45,50 @@ export function LaptopGrid({
   const { comparedLaptops, removeLaptop, clearCompare, count } = useCompare();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
+
       {/* Fallback Explanation Alert Banner */}
       {isFallback && (
-        <div className="p-4 sm:p-5 rounded-2xl border border-amber-500/40 bg-amber-950/20 text-amber-200 backdrop-blur-md space-y-1.5 animate-fadeIn">
+        <div className="p-4 rounded-xl border border-amber-200 bg-amber-50 text-amber-800 space-y-1 animate-fadeIn">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-amber-400 shrink-0" />
-            <h3 className="text-sm sm:text-base font-bold text-white font-sans">
+            <Sparkles className="h-4 w-4 text-amber-500 shrink-0" />
+            <h3 className="text-sm font-bold text-amber-900">
               {fallbackReason || "Exact model unavailable. These are the closest available alternatives."}
             </h3>
           </div>
-          <p className="text-xs sm:text-sm text-amber-300/80 pl-6 font-normal leading-relaxed">
+          <p className="text-xs text-amber-700 pl-6 font-normal leading-relaxed">
             We searched the verified Indian market catalog and found the closest alternatives matching your requested brand, GPU tier, CPU generation, and performance class.
           </p>
         </div>
       )}
 
-      {/* Grid Top Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-surface-800/80">
-        <div>
-          <span className="text-sm font-semibold text-white">
-            Showing <span className="text-brand-400 font-bold">{laptops.length}</span>{" "}
+      {/* Grid Top Bar — count + sort */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-sm font-semibold text-shop-text">
+            <span className="text-brand-600 font-bold">{laptops.length}</span>{" "}
             {laptops.length === 1 ? "Laptop" : "Laptops"}
-            {isFallback && <span className="text-xs text-amber-400 font-semibold ml-1.5">(Nearest Matches)</span>}
+            {isFallback && (
+              <span className="text-xs text-amber-600 font-semibold ml-1.5">(Nearest Matches)</span>
+            )}
           </span>
-          <span className="text-xs text-surface-400 ml-2 font-normal">
-            (Indian Market Catalog)
+          <span className="text-xs text-shop-muted font-normal hidden sm:inline">
+            — Indian Market Catalog
           </span>
         </div>
 
         {/* Sort selector */}
         {laptops.length > 0 && (
-          <div className="flex items-center gap-2">
-            <label htmlFor="sort-select" className="text-xs text-surface-400 flex items-center gap-1 shrink-0 font-medium">
-              <ArrowUpDown className="h-3.5 w-3.5 text-brand-400" />
+          <div className="flex items-center gap-2 shrink-0">
+            <label htmlFor="sort-select-grid" className="text-xs text-shop-muted flex items-center gap-1 font-medium whitespace-nowrap">
+              <ArrowUpDown className="h-3.5 w-3.5 text-brand-500" />
               Sort by:
             </label>
             <select
-              id="sort-select"
+              id="sort-select-grid"
               value={sortOption}
               onChange={(e) => onSortChange(e.target.value as SortOption)}
-              className="rounded-xl bg-surface-900 border border-surface-700/80 px-3 py-1.5 text-xs font-semibold text-white focus:border-brand-400 focus:outline-none cursor-pointer"
+              className="rounded-lg bg-white border border-shop-border px-3 py-1.5 text-xs font-semibold text-shop-text focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/30 cursor-pointer shadow-sm"
             >
               <option value="recommended">BuyWise Recommended</option>
               <option value="lowest-listed-price">Lowest Listed Price</option>
@@ -102,25 +104,25 @@ export function LaptopGrid({
 
       {/* Empty State / Broad Suggestions */}
       {laptops.length === 0 ? (
-        <div className="rounded-2xl border border-surface-800 bg-surface-900/30 p-8 sm:p-12 text-center backdrop-blur-sm space-y-5">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-surface-800 text-surface-400">
+        <div className="rounded-xl border border-shop-border bg-white p-10 sm:p-14 text-center space-y-5">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100 text-gray-400">
             <SearchX className="h-7 w-7" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-white mb-2">No matching or near-match laptops found</h3>
-            <p className="text-sm text-surface-400 max-w-md mx-auto font-normal">
-              We couldn&apos;t find any laptop or close alternatives matching your exact filters. Try exploring these popular search options:
+            <h3 className="text-lg font-semibold text-shop-text mb-2">No matching laptops found</h3>
+            <p className="text-sm text-shop-muted max-w-md mx-auto font-normal">
+              We couldn&apos;t find any laptop matching your exact filters. Try exploring these popular options:
             </p>
           </div>
 
           {broadSuggestions.length > 0 && (
-            <div className="flex flex-wrap justify-center gap-2 max-w-lg mx-auto pt-2">
+            <div className="flex flex-wrap justify-center gap-2 max-w-lg mx-auto pt-1">
               {broadSuggestions.map((sug, i) => (
                 <button
                   key={i}
                   type="button"
                   onClick={() => onSelectSuggestion?.(sug)}
-                  className="px-3 py-1.5 rounded-xl text-xs font-medium text-surface-200 bg-surface-800/80 hover:bg-brand-500/20 hover:text-brand-300 hover:border-brand-500/30 border border-surface-700 transition-all"
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium text-shop-text bg-white border border-shop-border hover:border-brand-400 hover:text-brand-600 hover:bg-brand-50 transition-all"
                 >
                   {sug}
                 </button>
@@ -128,16 +130,20 @@ export function LaptopGrid({
             </div>
           )}
 
-          <div className="pt-2">
-            <Button variant="primary" size="sm" onClick={onResetFilters} className="font-semibold">
+          <div className="pt-1">
+            <button
+              type="button"
+              onClick={onResetFilters}
+              className="inline-flex items-center gap-2 text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 px-4 py-2 rounded-lg transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            >
               <RotateCcw className="h-4 w-4" />
               Reset All Filters
-            </Button>
+            </button>
           </div>
         </div>
       ) : (
-        /* Laptop Cards Grid */
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        /* ── 4-Column Laptop Cards Grid ── */
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
           {laptops.map((laptop) => (
             <LaptopCard
               key={laptop.id}
@@ -148,22 +154,22 @@ export function LaptopGrid({
         </div>
       )}
 
-      {/* Separate Upcoming & Announced Section */}
+      {/* Upcoming & Announced Section */}
       {upcomingLaptops.length > 0 && (
-        <div className="pt-10 mt-10 border-t border-surface-800/80 space-y-6">
+        <div className="pt-8 mt-8 border-t border-shop-border space-y-5">
           <div>
-            <div className="inline-flex items-center gap-2 mb-1.5">
-              <Sparkles className="h-4 w-4 text-amber-400" />
-              <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-white font-sans">
-                Announced & Upcoming Next-Gen Laptops
+            <div className="inline-flex items-center gap-2 mb-1">
+              <Sparkles className="h-4 w-4 text-amber-500" />
+              <h3 className="text-xl font-bold tracking-tight text-shop-text">
+                Announced &amp; Upcoming Next-Gen Laptops
               </h3>
             </div>
-            <p className="text-xs sm:text-sm text-surface-400">
+            <p className="text-xs text-shop-muted">
               Officially announced next-gen hardware. Verified India market pricing and live purchase links will be available upon retail launch.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
             {upcomingLaptops.map((laptop) => (
               <LaptopCard key={laptop.id} laptop={laptop} />
             ))}
@@ -171,7 +177,7 @@ export function LaptopGrid({
         </div>
       )}
 
-      {/* Floating Compare Bar */}
+      {/* Floating Compare Bar — keeps dark brand colors to stand out over light page */}
       {count > 0 && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[95%] max-w-2xl rounded-2xl border border-brand-500/40 bg-surface-950/95 p-4 shadow-2xl backdrop-blur-xl animate-fadeIn">
           <div className="flex items-center justify-between gap-4">
@@ -209,10 +215,13 @@ export function LaptopGrid({
                 Clear
               </button>
               <Link href="/compare">
-                <Button variant="primary" size="sm" className="font-semibold px-3 py-1.5 text-xs">
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-surface-950 bg-brand-400 hover:bg-brand-300 px-3 py-1.5 rounded-lg transition-all"
+                >
                   <span>Compare</span>
                   <ArrowRight className="h-3.5 w-3.5" />
-                </Button>
+                </button>
               </Link>
             </div>
           </div>

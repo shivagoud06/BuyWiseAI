@@ -1,4 +1,7 @@
 export type FeedbackCategory =
+  | "Suggestion"
+  | "Bug Report"
+  | "General Feedback"
   | "Recommendation"
   | "Search"
   | "Retailer/Price"
@@ -7,6 +10,9 @@ export type FeedbackCategory =
   | "Other";
 
 export const VALID_FEEDBACK_CATEGORIES: readonly FeedbackCategory[] = [
+  "Suggestion",
+  "Bug Report",
+  "General Feedback",
   "Recommendation",
   "Search",
   "Retailer/Price",

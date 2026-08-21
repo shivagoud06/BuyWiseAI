@@ -8,10 +8,7 @@ import {
   Sliders,
   ArrowRight,
   Sparkles,
-  Check
 } from "lucide-react";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 
 const BUDGET_OPTIONS = [
   { id: "under-40k", label: "Under ₹40,000" },
@@ -26,7 +23,7 @@ const USE_CASE_OPTIONS = [
   { id: "Gaming", label: "Gaming" },
   { id: "Student", label: "Student" },
   { id: "Office", label: "Office" },
-  { id: "Content Creation", label: "Content Creation" },
+  { id: "Content Creation", label: "Creator" },
 ];
 
 const PREFERENCE_OPTIONS = [
@@ -49,37 +46,34 @@ export function AdvisorBox() {
     if (selectedBudget) params.set("budget", selectedBudget);
     if (selectedUseCase) params.set("useCase", selectedUseCase);
     if (selectedPreference) params.set("preference", selectedPreference);
-
     router.push(`/laptops?${params.toString()}`);
   };
 
   return (
     <section id="advisor-box" className="py-6 sm:py-10">
       <div className="mx-auto max-w-4xl px-3 sm:px-6 lg:px-8">
-        <Card className="p-4 sm:p-8 md:p-10 rounded-3xl border-surface-750/90 bg-surface-900/80 shadow-2xl backdrop-blur-xl space-y-7 sm:space-y-8">
+        <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-5 sm:p-8 space-y-6">
           {/* Card Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-surface-800/80">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-[#E5E7EB]">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-500/10 text-brand-400 border border-brand-500/30">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-50 text-brand-600 border border-brand-200">
                 <Sparkles className="h-4 w-4" />
               </div>
-              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white font-sans">
+              <h2 className="text-lg sm:text-xl font-bold tracking-tight text-[#111827] font-sans">
                 What are you looking for?
               </h2>
             </div>
-            <span className="text-xs text-surface-400 font-medium">
-              Interactive Laptop Advisor
-            </span>
+            <span className="text-xs text-[#6B7280] font-medium">Interactive Laptop Advisor</span>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-7">
-            {/* 1. Budget Selection */}
-            <div className="space-y-3">
-              <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-surface-300">
-                <Wallet className="h-3.5 w-3.5 text-brand-400" />
-                <span>1. Select Your Budget (INR)</span>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* 1. Budget */}
+            <div className="space-y-2.5">
+              <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#6B7280]">
+                <Wallet className="h-3.5 w-3.5 text-brand-500" />
+                <span>1. Your Budget (INR)</span>
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
                 {BUDGET_OPTIONS.map((opt) => {
                   const isSelected = selectedBudget === opt.id;
                   return (
@@ -89,8 +83,8 @@ export function AdvisorBox() {
                       onClick={() => setSelectedBudget(opt.id)}
                       className={`rounded-xl px-3 py-2.5 text-xs font-semibold transition-all text-center border ${
                         isSelected
-                          ? "border-brand-400 bg-brand-500/15 text-white shadow-sm shadow-brand-500/10"
-                          : "border-surface-800 bg-surface-950/60 text-surface-300 hover:border-surface-700 hover:text-white"
+                          ? "border-brand-400 bg-brand-500 text-white shadow-sm"
+                          : "border-[#E5E7EB] bg-white text-[#374151] hover:border-brand-400 hover:text-brand-600 hover:bg-brand-50"
                       }`}
                     >
                       {opt.label}
@@ -100,13 +94,13 @@ export function AdvisorBox() {
               </div>
             </div>
 
-            {/* 2. Primary Use Case */}
-            <div className="space-y-3">
-              <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-surface-300">
-                <Briefcase className="h-3.5 w-3.5 text-cyan-400" />
+            {/* 2. Use Case */}
+            <div className="space-y-2.5">
+              <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#6B7280]">
+                <Briefcase className="h-3.5 w-3.5 text-cyan-600" />
                 <span>2. Primary Use</span>
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
                 {USE_CASE_OPTIONS.map((opt) => {
                   const isSelected = selectedUseCase === opt.id;
                   return (
@@ -116,8 +110,8 @@ export function AdvisorBox() {
                       onClick={() => setSelectedUseCase(opt.id)}
                       className={`rounded-xl px-3 py-2.5 text-xs font-semibold transition-all text-center border ${
                         isSelected
-                          ? "border-cyan-400 bg-cyan-500/15 text-white shadow-sm shadow-cyan-500/10"
-                          : "border-surface-800 bg-surface-950/60 text-surface-300 hover:border-surface-700 hover:text-white"
+                          ? "border-cyan-500 bg-cyan-500 text-white shadow-sm"
+                          : "border-[#E5E7EB] bg-white text-[#374151] hover:border-cyan-400 hover:text-cyan-600 hover:bg-cyan-50"
                       }`}
                     >
                       {opt.label}
@@ -127,13 +121,13 @@ export function AdvisorBox() {
               </div>
             </div>
 
-            {/* 3. Optional Priority/Preference */}
-            <div className="space-y-3">
-              <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-surface-300">
-                <Sliders className="h-3.5 w-3.5 text-teal-400" />
+            {/* 3. Priority */}
+            <div className="space-y-2.5">
+              <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#6B7280]">
+                <Sliders className="h-3.5 w-3.5 text-teal-600" />
                 <span>3. Key Priority (Optional)</span>
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
                 {PREFERENCE_OPTIONS.map((opt) => {
                   const isSelected = selectedPreference === opt.id;
                   return (
@@ -143,8 +137,8 @@ export function AdvisorBox() {
                       onClick={() => setSelectedPreference(opt.id)}
                       className={`rounded-xl px-3 py-2.5 text-xs font-semibold transition-all text-center border ${
                         isSelected
-                          ? "border-teal-400 bg-teal-500/15 text-white shadow-sm shadow-teal-500/10"
-                          : "border-surface-800 bg-surface-950/60 text-surface-300 hover:border-surface-700 hover:text-white"
+                          ? "border-teal-500 bg-teal-500 text-white shadow-sm"
+                          : "border-[#E5E7EB] bg-white text-[#374151] hover:border-teal-400 hover:text-teal-600 hover:bg-teal-50"
                       }`}
                     >
                       {opt.label}
@@ -154,20 +148,18 @@ export function AdvisorBox() {
               </div>
             </div>
 
-            {/* Primary Action Button */}
-            <div className="pt-3">
-              <Button
+            {/* Submit */}
+            <div className="pt-2">
+              <button
                 type="submit"
-                variant="primary"
-                size="lg"
-                className="w-full justify-center text-sm font-bold shadow-lg shadow-brand-500/20 py-3.5"
+                className="w-full inline-flex items-center justify-center gap-2 text-sm font-bold text-white bg-brand-500 hover:bg-brand-600 px-6 py-3.5 rounded-xl transition-all shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
               >
                 <span>Find My Laptop</span>
                 <ArrowRight className="h-4 w-4" />
-              </Button>
+              </button>
             </div>
           </form>
-        </Card>
+        </div>
       </div>
     </section>
   );

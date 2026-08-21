@@ -2,115 +2,122 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Laptop, Sparkles, Menu, X, ArrowRight, Scale, BrainCircuit, Search, MessageSquare, Bell } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+import {
+  Sparkles,
+  Menu,
+  X,
+  ArrowRight,
+  Scale,
+  BrainCircuit,
+  Search,
+  MessageSquare,
+  Bell,
+} from "lucide-react";
 import { useCompare } from "@/context/CompareContext";
 import { FeedbackModal } from "@/components/feedback/FeedbackModal";
 import { NotificationSettingsModal } from "@/components/notifications/NotificationSettingsModal";
-import { getNotificationConsent, getNotificationHistory } from "@/services/notifications/consent";
+import { AlertsNotificationCenter } from "@/components/notifications/AlertsNotificationCenter";
+import {
+  getNotificationConsent,
+  getNotificationHistory,
+  getUnreadNotificationCount,
+} from "@/services/notifications/consent";
+import { Logo } from "@/components/brand/Logo";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [alertsOpen, setAlertsOpen] = useState(false);
   const [notifSettingsOpen, setNotifSettingsOpen] = useState(false);
-  const [hasAlerts, setHasAlerts] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const { count } = useCompare();
 
   useEffect(() => {
     try {
-      const history = getNotificationHistory();
-      const consent = getNotificationConsent();
-      setHasAlerts(consent.enabled || history.length > 0);
+      setUnreadCount(getUnreadNotificationCount());
     } catch {
       // safe fallback
     }
-  }, [notifSettingsOpen]);
+  }, [alertsOpen, notifSettingsOpen]);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-surface-800/80 bg-surface-950/85 backdrop-blur-xl transition-all">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-3 sm:px-6 lg:px-8">
-        {/* Brand Logo */}
-        <Link href="/" className="group flex items-center gap-2 sm:gap-2.5 transition-transform">
-          <div className="relative flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-400 via-brand-500 to-brand-700 shadow-md shadow-brand-500/20 group-hover:scale-105 transition-all">
-            <Laptop className="h-4 w-4 sm:h-5 sm:w-5 text-surface-950 stroke-[2.2]" />
-            <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-300 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-400"></span>
-            </span>
-          </div>
-          <div className="flex flex-col">
-            <div className="flex items-center gap-1">
-              <span className="text-base sm:text-lg font-bold tracking-tight text-white font-sans">BuyWise</span>
-              <span className="text-base sm:text-lg font-extrabold tracking-tight bg-gradient-to-r from-brand-400 to-cyan-400 bg-clip-text text-transparent">AI</span>
-            </div>
-            <span className="hidden xs:block text-[9px] sm:text-[10px] text-surface-400 font-medium tracking-wide uppercase">Laptop Buying Copilot</span>
-          </div>
+    <header className="sticky top-0 z-40 w-full border-b border-[#E2E8F0] bg-white/95 backdrop-blur-xl shadow-xs transition-all">
+      <div className="mx-auto flex h-14 sm:h-16 max-w-7xl items-center justify-between px-3 sm:px-6 lg:px-8">
+
+        {/* Unique BuyWise AI Logo */}
+        <Link href="/" className="group flex items-center transition-transform hover:opacity-95" aria-label="BuyWise AI Home">
+          <Logo size="md" />
         </Link>
 
         {/* Desktop Nav Links */}
-        <nav className="hidden md:flex items-center gap-7">
-          <Link
-            href="/"
-            className="text-sm font-medium text-surface-300 hover:text-white transition-colors"
-          >
+        <nav className="hidden md:flex items-center gap-6" aria-label="Main Navigation">
+          <Link href="/" className="text-sm font-semibold text-[#475569] hover:text-[#0EA5A4] transition-colors duration-150">
             Home
           </Link>
-          <Link
-            href="/laptops"
-            className="text-sm font-medium text-surface-300 hover:text-white transition-colors"
-          >
+          <Link href="/laptops" className="text-sm font-semibold text-[#475569] hover:text-[#0EA5A4] transition-colors duration-150">
             Laptops
           </Link>
-          <Link
-            href="/compare"
-            className="text-sm font-medium text-surface-300 hover:text-white transition-colors flex items-center gap-1.5"
-          >
-            <Scale className="h-3.5 w-3.5 text-brand-400" />
+          <Link href="/compare" className="text-sm font-semibold text-[#475569] hover:text-[#0EA5A4] transition-colors duration-150 flex items-center gap-1.5">
+            <Scale className="h-3.5 w-3.5 text-[#0EA5A4]" />
             <span>Compare</span>
             {count > 0 && (
-              <span className="rounded-full bg-brand-500 text-surface-950 text-[11px] font-bold px-1.5 py-0.2">
+              <span className="rounded-full bg-[#0EA5A4] text-white text-[11px] font-bold px-1.5 py-0.5 leading-none shadow-xs">
                 {count}
               </span>
             )}
           </Link>
-          <Link
-            href="/advisor"
-            className="text-sm font-medium text-surface-300 hover:text-white transition-colors flex items-center gap-1.5"
-          >
-            <BrainCircuit className="h-3.5 w-3.5 text-cyan-400" />
+          <Link href="/advisor" className="text-sm font-semibold text-[#475569] hover:text-[#0EA5A4] transition-colors duration-150 flex items-center gap-1.5">
+            <BrainCircuit className="h-3.5 w-3.5 text-[#0EA5A4]" />
             <span>AI Advisor</span>
           </Link>
         </nav>
 
-        {/* Right CTA / Search & Action */}
-        <div className="hidden sm:flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => setNotifSettingsOpen(true)}
-            className="relative flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs text-surface-400 hover:bg-surface-800 hover:text-white transition-colors"
-            title="Notification alerts"
-            aria-label="Notification alerts"
-          >
-            <Bell className="h-3.5 w-3.5 text-brand-400" />
-            <span>Alerts</span>
-            {hasAlerts && (
-              <span className="h-1.5 w-1.5 rounded-full bg-brand-400"></span>
-            )}
-          </button>
+        {/* Right Actions */}
+        <div className="hidden sm:flex items-center gap-1.5 relative">
+          {/* Alerts Trigger with Dropdown Positioning */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setAlertsOpen(!alertsOpen)}
+              className={`relative flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition-all duration-150 ${
+                alertsOpen
+                  ? "bg-[#E6FFFE] text-[#0EA5A4] ring-1 ring-[#0EA5A4]/30"
+                  : "text-[#64748B] hover:bg-slate-100 hover:text-[#111827]"
+              }`}
+              title="Notification alerts"
+              aria-label="Notification alerts"
+              aria-expanded={alertsOpen}
+            >
+              <Bell className="h-4 w-4 text-[#0EA5A4]" />
+              <span>Alerts</span>
+              {unreadCount > 0 && (
+                <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-[#0EA5A4] text-white text-[9px] font-bold px-1 leading-none">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+
+            {/* Notification Center Dropdown */}
+            <AlertsNotificationCenter
+              isOpen={alertsOpen}
+              onClose={() => setAlertsOpen(false)}
+              onOpenSettings={() => setNotifSettingsOpen(true)}
+            />
+          </div>
 
           <button
             type="button"
             onClick={() => setFeedbackOpen(true)}
-            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs text-surface-400 hover:bg-surface-800 hover:text-white transition-colors"
+            className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold text-[#64748B] hover:bg-slate-100 hover:text-[#111827] transition-all duration-150"
             title="Provide feedback"
           >
-            <MessageSquare className="h-3.5 w-3.5 text-brand-400" />
+            <MessageSquare className="h-3.5 w-3.5 text-[#0EA5A4]" />
             <span>Feedback</span>
           </button>
 
           <Link
             href="/laptops"
-            className="rounded-lg p-2 text-surface-400 hover:bg-surface-800 hover:text-white transition-colors"
+            className="rounded-xl p-2 text-[#64748B] hover:bg-slate-100 hover:text-[#111827] transition-all duration-150"
             title="Search laptops"
             aria-label="Search laptops"
           >
@@ -118,35 +125,53 @@ export function Navbar() {
           </Link>
 
           <Link href="/advisor">
-            <Button size="sm" variant="primary" className="font-semibold text-xs">
+            <button
+              type="button"
+              className="ml-1 inline-flex items-center gap-1.5 text-xs font-bold text-white bg-[#0EA5A4] hover:bg-[#087F7E] active:scale-98 px-3.5 py-2 rounded-xl transition-all duration-150 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0EA5A4]"
+            >
+              <Sparkles className="h-3.5 w-3.5" />
               Find My Laptop
               <ArrowRight className="h-3.5 w-3.5" />
-            </Button>
+            </button>
           </Link>
         </div>
 
-        {/* Mobile menu toggle */}
+        {/* Mobile toggle */}
         <div className="flex md:hidden items-center gap-2">
           {count > 0 && (
             <Link
               href="/compare"
-              className="flex items-center gap-1 rounded-lg bg-surface-800 px-2.5 py-1.5 text-xs text-brand-300 font-semibold border border-surface-700"
+              className="flex items-center gap-1 rounded-lg bg-teal-50 border border-teal-200 px-2 py-1 text-xs text-teal-700 font-semibold"
             >
               <Scale className="h-3.5 w-3.5" />
               <span>{count}</span>
             </Link>
           )}
+
+          <button
+            type="button"
+            onClick={() => setAlertsOpen(true)}
+            className="relative rounded-lg p-2 text-[#64748B] hover:bg-slate-100 hover:text-[#111827] transition-colors"
+            aria-label="Smart alerts"
+          >
+            <Bell className="h-4 w-4 text-[#0EA5A4]" />
+            {unreadCount > 0 && (
+              <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-[#0EA5A4]" />
+            )}
+          </button>
+
           <Link
             href="/laptops"
-            className="rounded-lg p-2 text-surface-400 hover:bg-surface-800 hover:text-white transition-colors"
+            className="rounded-lg p-2 text-[#64748B] hover:bg-slate-100 hover:text-[#111827] transition-colors"
             aria-label="Search laptops"
           >
             <Search className="h-4 w-4" />
           </Link>
+
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="rounded-lg p-2 text-surface-400 hover:bg-surface-800 hover:text-white transition-colors"
+            className="rounded-lg p-2 text-[#64748B] hover:bg-slate-100 hover:text-[#111827] transition-colors"
             aria-label="Toggle menu"
           >
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -156,94 +181,71 @@ export function Navbar() {
 
       {/* Mobile menu dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-b border-surface-800 bg-surface-950/95 backdrop-blur-xl px-4 pt-3 pb-6 space-y-4">
-          <nav className="flex flex-col space-y-3">
-            <Link
-              href="/"
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-base font-medium text-surface-200 hover:text-brand-400 py-1"
-            >
+        <div className="md:hidden border-b border-[#E2E8F0] bg-white px-4 pt-3 pb-6 space-y-3 shadow-lg animate-fadeIn">
+          <nav className="flex flex-col space-y-1">
+            <Link href="/" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-[#334155] hover:text-[#0EA5A4] hover:bg-slate-50 rounded-lg px-3 py-2.5">
               Home
             </Link>
-            <Link
-              href="/laptops"
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-base font-medium text-surface-200 hover:text-brand-400 py-1"
-            >
+            <Link href="/laptops" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-[#334155] hover:text-[#0EA5A4] hover:bg-slate-50 rounded-lg px-3 py-2.5">
               Laptops
             </Link>
-            <Link
-              href="/compare"
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-base font-medium text-surface-200 hover:text-brand-400 py-1 flex items-center justify-between"
-            >
+            <Link href="/compare" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-[#334155] hover:text-[#0EA5A4] hover:bg-slate-50 rounded-lg px-3 py-2.5 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Scale className="h-4 w-4 text-brand-400" />
+                <Scale className="h-4 w-4 text-[#0EA5A4]" />
                 <span>Compare</span>
               </div>
               {count > 0 && (
-                <span className="rounded-full bg-brand-500 text-surface-950 text-xs font-bold px-2 py-0.5">
-                  {count}
-                </span>
+                <span className="rounded-full bg-[#0EA5A4] text-white text-xs font-bold px-2 py-0.5">{count}</span>
               )}
             </Link>
-            <Link
-              href="/advisor"
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-base font-medium text-surface-200 hover:text-brand-400 py-1 flex items-center gap-2"
-            >
-              <BrainCircuit className="h-4 w-4 text-cyan-400" />
+            <Link href="/advisor" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-[#334155] hover:text-[#0EA5A4] hover:bg-slate-50 rounded-lg px-3 py-2.5 flex items-center gap-2">
+              <BrainCircuit className="h-4 w-4 text-[#0EA5A4]" />
               <span>AI Advisor</span>
             </Link>
             <button
               type="button"
-              onClick={() => {
-                setMobileMenuOpen(false);
-                setNotifSettingsOpen(true);
-              }}
-              className="text-base font-medium text-surface-200 hover:text-brand-400 py-1 flex items-center gap-2 text-left"
+              onClick={() => { setMobileMenuOpen(false); setAlertsOpen(true); }}
+              className="text-sm font-semibold text-[#334155] hover:text-[#0EA5A4] hover:bg-slate-50 rounded-lg px-3 py-2.5 flex items-center justify-between text-left w-full"
             >
-              <Bell className="h-4 w-4 text-brand-400" />
-              <span>Smart Alerts</span>
-              {hasAlerts && (
-                <span className="h-1.5 w-1.5 rounded-full bg-brand-400"></span>
+              <div className="flex items-center gap-2">
+                <Bell className="h-4 w-4 text-[#0EA5A4]" />
+                <span>Smart Alerts</span>
+              </div>
+              {unreadCount > 0 && (
+                <span className="rounded-full bg-[#0EA5A4] text-white text-xs font-bold px-2 py-0.5">{unreadCount}</span>
               )}
             </button>
             <button
               type="button"
-              onClick={() => {
-                setMobileMenuOpen(false);
-                setFeedbackOpen(true);
-              }}
-              className="text-base font-medium text-surface-200 hover:text-brand-400 py-1 flex items-center gap-2 text-left"
+              onClick={() => { setMobileMenuOpen(false); setFeedbackOpen(true); }}
+              className="text-sm font-semibold text-[#334155] hover:text-[#0EA5A4] hover:bg-slate-50 rounded-lg px-3 py-2.5 flex items-center gap-2 text-left w-full"
             >
-              <MessageSquare className="h-4 w-4 text-brand-400" />
+              <MessageSquare className="h-4 w-4 text-[#0EA5A4]" />
               <span>Feedback</span>
             </button>
           </nav>
-          <div className="pt-2 border-t border-surface-800 flex flex-col gap-2.5">
+          <div className="pt-2 border-t border-[#E2E8F0]">
             <Link href="/advisor" onClick={() => setMobileMenuOpen(false)}>
-              <Button size="md" variant="primary" className="w-full justify-center font-semibold text-xs">
+              <button type="button" className="w-full justify-center inline-flex items-center gap-2 text-sm font-bold text-white bg-[#0EA5A4] hover:bg-[#087F7E] px-4 py-2.5 rounded-xl transition-all shadow-xs">
+                <Sparkles className="h-4 w-4" />
                 Find My Laptop
                 <ArrowRight className="h-4 w-4" />
-              </Button>
+              </button>
             </Link>
           </div>
         </div>
       )}
 
-      {/* Notification Settings Modal */}
-      <NotificationSettingsModal
-        isOpen={notifSettingsOpen}
-        onClose={() => setNotifSettingsOpen(false)}
-      />
-
-      {/* Feedback Modal */}
-      <FeedbackModal
-        isOpen={feedbackOpen}
-        onClose={() => setFeedbackOpen(false)}
-        source="navbar"
-      />
+      {/* Mobile Alerts Center & Modals */}
+      <div className="md:hidden">
+        <AlertsNotificationCenter
+          isOpen={alertsOpen}
+          onClose={() => setAlertsOpen(false)}
+          onOpenSettings={() => setNotifSettingsOpen(true)}
+        />
+      </div>
+      <NotificationSettingsModal isOpen={notifSettingsOpen} onClose={() => setNotifSettingsOpen(false)} />
+      <FeedbackModal isOpen={feedbackOpen} onClose={() => setFeedbackOpen(false)} source="navbar" />
     </header>
   );
 }

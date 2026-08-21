@@ -191,24 +191,24 @@ function AdvisorContent() {
               <span>BUYWISE LAPTOP ADVISOR</span>
             </Badge>
           </div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white font-sans">
-            Find the laptop that&apos;s right for you.
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#111827] font-sans">
+            Find Your Perfect Laptop
           </h1>
-          <p className="text-sm sm:text-base text-surface-300 font-normal max-w-xl mx-auto">
-            Tell BuyWise what you need. We&apos;ll compare your options and find the laptops that fit.
+          <p className="text-sm sm:text-base text-[#64748B] font-normal max-w-xl mx-auto">
+            Tell me what you need and BuyWise will help you find the best laptop.
           </p>
 
           {/* Mode Switcher Tabs (Only shown when on input state) */}
           {advisorState === "input" && (
             <div className="pt-3 flex items-center justify-center">
-              <div className="inline-flex rounded-2xl bg-surface-900/90 border border-surface-800 p-1 backdrop-blur-md">
+              <div className="inline-flex rounded-2xl bg-white border border-[#E5E7EB] p-1 shadow-sm">
                 <button
                   type="button"
                   onClick={() => setMode("nlp")}
                   className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
                     mode === "nlp"
-                      ? "bg-brand-500 text-surface-950 shadow-md font-bold"
-                      : "text-surface-400 hover:text-white"
+                      ? "bg-brand-500 text-white shadow-sm font-bold"
+                      : "text-[#6B7280] hover:text-[#111827]"
                   }`}
                 >
                   <MessageSquare className="h-3.5 w-3.5" />
@@ -219,8 +219,8 @@ function AdvisorContent() {
                   onClick={() => setMode("guided")}
                   className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
                     mode === "guided"
-                      ? "bg-brand-500 text-surface-950 shadow-md font-bold"
-                      : "text-surface-400 hover:text-white"
+                      ? "bg-brand-500 text-white shadow-sm font-bold"
+                      : "text-[#6B7280] hover:text-[#111827]"
                   }`}
                 >
                   <SlidersHorizontal className="h-3.5 w-3.5" />

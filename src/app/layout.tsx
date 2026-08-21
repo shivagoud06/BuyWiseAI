@@ -69,7 +69,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={inter.variable}>
-      <body className="min-h-screen bg-[#060b13] text-surface-100 flex flex-col font-sans selection:bg-brand-500/30 selection:text-brand-200">
+      <body className="min-h-screen bg-[#F5F7FA] text-[#111827] flex flex-col font-sans selection:bg-brand-500/20 selection:text-brand-800">
         <CompareProvider>
           <NotificationPermissionBanner />
           <Navbar />

@@ -9,12 +9,12 @@ interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
 
 export function Badge({ className, variant = "default", size = "md", children, ...props }: BadgeProps) {
   const variantStyles = {
-    default: "bg-surface-800 text-surface-300 border-surface-700/60",
-    brand: "bg-brand-500/15 text-brand-300 border-brand-500/30",
-    outline: "bg-transparent text-surface-300 border-surface-700 hover:border-surface-600",
-    "verdict-buy": "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
-    "verdict-wait": "bg-amber-500/15 text-amber-300 border-amber-500/30",
-    "verdict-skip": "bg-rose-500/15 text-rose-300 border-rose-500/30",
+    default: "bg-slate-100 text-[#475569] border-[#E2E8F0]",
+    brand: "bg-[#E6FFFE] text-[#0EA5A4] border-[#99F6F3] font-bold",
+    outline: "bg-white text-[#475569] border-[#CBD5E1] hover:border-[#0EA5A4]",
+    "verdict-buy": "bg-[#DCFCE7] text-[#16A34A] border-[#BBF7D0] font-bold",
+    "verdict-wait": "bg-[#FEF3C7] text-[#D97706] border-[#FDE68A] font-bold",
+    "verdict-skip": "bg-[#FEE2E2] text-[#DC2626] border-[#FECACA] font-bold",
   };
 
   const sizeStyles = {
@@ -25,7 +25,7 @@ export function Badge({ className, variant = "default", size = "md", children, .
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border transition-colors",
+        "inline-flex items-center gap-1.5 rounded-full border transition-colors shadow-xs",
         variantStyles[variant],
         sizeStyles[size],
         className

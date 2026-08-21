@@ -18,13 +18,7 @@ import {
   ArrowRight,
   ArrowLeft,
   Check,
-  Zap,
-  Battery,
-  Monitor,
-  Scale
 } from "lucide-react";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 
 interface AdvisorWizardProps {
   initialValues?: Partial<AdvisorInput>;
@@ -119,14 +113,14 @@ export function AdvisorWizard({ initialValues, onSubmit }: AdvisorWizardProps) {
   const progressPercent = (step / 5) * 100;
 
   return (
-    <Card className="p-4 sm:p-10 rounded-3xl border-surface-750 bg-surface-900/85 shadow-2xl backdrop-blur-xl max-w-3xl mx-auto space-y-7 sm:space-y-8">
+    <div className="p-5 sm:p-8 rounded-3xl border border-[#E2E8F0] bg-white shadow-xl max-w-3xl mx-auto space-y-7 sm:space-y-8">
       {/* Top Step Counter & Progress Bar */}
-      <div className="space-y-3">
+      <div className="space-y-2.5">
         <div className="flex items-center justify-between text-xs font-semibold">
-          <span className="text-brand-400 uppercase tracking-wider font-mono">
+          <span className="text-teal-700 uppercase tracking-wider font-mono font-bold">
             Step {step} of 5
           </span>
-          <span className="text-surface-400 font-normal">
+          <span className="text-[#64748B] font-medium">
             {step === 1 && "Budget Selection"}
             {step === 2 && "Primary Usage"}
             {step === 3 && "Key Priorities"}
@@ -134,9 +128,9 @@ export function AdvisorWizard({ initialValues, onSubmit }: AdvisorWizardProps) {
             {step === 5 && "Graphics (GPU)"}
           </span>
         </div>
-        <div className="h-2 w-full bg-surface-950 rounded-full overflow-hidden">
+        <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-brand-500 to-cyan-400 rounded-full transition-all duration-300 ease-out"
+            className="h-full bg-gradient-to-r from-teal-500 to-cyan-500 rounded-full transition-all duration-300 ease-out"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
@@ -144,16 +138,16 @@ export function AdvisorWizard({ initialValues, onSubmit }: AdvisorWizardProps) {
 
       {/* STEP 1: Budget */}
       {step === 1 && (
-        <div className="space-y-6 animate-fadeIn">
+        <div className="space-y-5 animate-fadeIn">
           <div>
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-400 mb-1">
+            <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-teal-700 mb-1">
               <Wallet className="h-4 w-4" />
               <span>Step 1 — Budget</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white font-sans">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#111827] font-sans">
               What is your target budget?
             </h2>
-            <p className="text-xs sm:text-sm text-surface-400 mt-1">
+            <p className="text-xs sm:text-sm text-[#64748B] mt-0.5">
               Select your budget in Indian Rupees (INR) to filter laptops within range.
             </p>
           </div>
@@ -166,24 +160,24 @@ export function AdvisorWizard({ initialValues, onSubmit }: AdvisorWizardProps) {
                   key={opt.id}
                   type="button"
                   onClick={() => setBudget(opt.id)}
-                  className={`p-4 rounded-2xl border text-left transition-all flex items-start justify-between gap-3 ${
+                  className={`p-4 rounded-2xl border text-left transition-all flex items-start justify-between gap-3 shadow-xs ${
                     isSelected
-                      ? "border-brand-400 bg-brand-500/15 shadow-md shadow-brand-500/10 text-white"
-                      : "border-surface-800 bg-surface-950/60 text-surface-300 hover:border-surface-700 hover:text-white"
+                      ? "border-teal-500 bg-teal-50/80 text-[#111827] shadow-sm ring-1 ring-teal-500/30"
+                      : "border-[#E2E8F0] bg-white text-[#334155] hover:border-teal-300 hover:bg-slate-50"
                   }`}
                 >
-                  <div className="space-y-1">
-                    <div className="text-sm font-bold text-white font-sans">{opt.title}</div>
-                    <div className="text-xs text-surface-400">{opt.subtitle}</div>
+                  <div className="space-y-0.5">
+                    <div className="text-sm font-bold text-[#111827] font-sans">{opt.title}</div>
+                    <div className="text-xs text-[#64748B]">{opt.subtitle}</div>
                   </div>
                   <div
-                    className={`flex h-6 w-6 items-center justify-center rounded-full border shrink-0 mt-0.5 ${
+                    className={`flex h-5 w-5 items-center justify-center rounded-full border shrink-0 mt-0.5 ${
                       isSelected
-                        ? "border-brand-400 bg-brand-500 text-surface-950"
-                        : "border-surface-700 bg-surface-900"
+                        ? "border-teal-600 bg-teal-600 text-white"
+                        : "border-[#CBD5E1] bg-white"
                     }`}
                   >
-                    {isSelected && <Check className="h-3.5 w-3.5 stroke-[3]" />}
+                    {isSelected && <Check className="h-3 w-3 stroke-[3]" />}
                   </div>
                 </button>
               );
@@ -194,16 +188,16 @@ export function AdvisorWizard({ initialValues, onSubmit }: AdvisorWizardProps) {
 
       {/* STEP 2: Primary Use */}
       {step === 2 && (
-        <div className="space-y-6 animate-fadeIn">
+        <div className="space-y-5 animate-fadeIn">
           <div>
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-cyan-400 mb-1">
+            <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-cyan-700 mb-1">
               <Briefcase className="h-4 w-4" />
               <span>Step 2 — Primary Use</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white font-sans">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#111827] font-sans">
               How will you use this laptop most?
             </h2>
-            <p className="text-xs sm:text-sm text-surface-400 mt-1">
+            <p className="text-xs sm:text-sm text-[#64748B] mt-0.5">
               Choose the primary workload you need this laptop to excel at.
             </p>
           </div>
@@ -216,27 +210,27 @@ export function AdvisorWizard({ initialValues, onSubmit }: AdvisorWizardProps) {
                   key={opt.id}
                   type="button"
                   onClick={() => setPrimaryUse(opt.id)}
-                  className={`p-4 rounded-2xl border text-left transition-all flex items-start justify-between gap-3 ${
+                  className={`p-4 rounded-2xl border text-left transition-all flex items-start justify-between gap-3 shadow-xs ${
                     isSelected
-                      ? "border-cyan-400 bg-cyan-500/15 shadow-md shadow-cyan-500/10 text-white"
-                      : "border-surface-800 bg-surface-950/60 text-surface-300 hover:border-surface-700 hover:text-white"
+                      ? "border-cyan-500 bg-cyan-50/80 text-[#111827] shadow-sm ring-1 ring-cyan-500/30"
+                      : "border-[#E2E8F0] bg-white text-[#334155] hover:border-cyan-300 hover:bg-slate-50"
                   }`}
                 >
-                  <div className="space-y-1">
+                  <div className="space-y-0.5">
                     <div className="flex items-center gap-2">
                       <span className="text-base">{opt.icon}</span>
-                      <span className="text-sm font-bold text-white font-sans">{opt.title}</span>
+                      <span className="text-sm font-bold text-[#111827] font-sans">{opt.title}</span>
                     </div>
-                    <div className="text-xs text-surface-400">{opt.subtitle}</div>
+                    <div className="text-xs text-[#64748B]">{opt.subtitle}</div>
                   </div>
                   <div
-                    className={`flex h-6 w-6 items-center justify-center rounded-full border shrink-0 mt-0.5 ${
+                    className={`flex h-5 w-5 items-center justify-center rounded-full border shrink-0 mt-0.5 ${
                       isSelected
-                        ? "border-cyan-400 bg-cyan-500 text-surface-950"
-                        : "border-surface-700 bg-surface-900"
+                        ? "border-cyan-600 bg-cyan-600 text-white"
+                        : "border-[#CBD5E1] bg-white"
                     }`}
                   >
-                    {isSelected && <Check className="h-3.5 w-3.5 stroke-[3]" />}
+                    {isSelected && <Check className="h-3 w-3 stroke-[3]" />}
                   </div>
                 </button>
               );
@@ -247,16 +241,16 @@ export function AdvisorWizard({ initialValues, onSubmit }: AdvisorWizardProps) {
 
       {/* STEP 3: Priorities (Multi-select) */}
       {step === 3 && (
-        <div className="space-y-6 animate-fadeIn">
+        <div className="space-y-5 animate-fadeIn">
           <div>
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-teal-400 mb-1">
+            <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-teal-700 mb-1">
               <Sliders className="h-4 w-4" />
               <span>Step 3 — Priorities</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white font-sans">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#111827] font-sans">
               What matters most to you?
             </h2>
-            <p className="text-xs sm:text-sm text-surface-400 mt-1">
+            <p className="text-xs sm:text-sm text-[#64748B] mt-0.5">
               Select one or more priorities (e.g. Battery, Display, Raw Performance).
             </p>
           </div>
@@ -269,24 +263,24 @@ export function AdvisorWizard({ initialValues, onSubmit }: AdvisorWizardProps) {
                   key={opt.id}
                   type="button"
                   onClick={() => togglePriority(opt.id)}
-                  className={`p-4 rounded-2xl border text-left transition-all flex items-start justify-between gap-3 ${
+                  className={`p-4 rounded-2xl border text-left transition-all flex items-start justify-between gap-3 shadow-xs ${
                     isSelected
-                      ? "border-teal-400 bg-teal-500/15 shadow-md shadow-teal-500/10 text-white"
-                      : "border-surface-800 bg-surface-950/60 text-surface-300 hover:border-surface-700 hover:text-white"
+                      ? "border-teal-500 bg-teal-50/80 text-[#111827] shadow-sm ring-1 ring-teal-500/30"
+                      : "border-[#E2E8F0] bg-white text-[#334155] hover:border-teal-300 hover:bg-slate-50"
                   }`}
                 >
-                  <div className="space-y-1">
-                    <div className="text-sm font-bold text-white font-sans">{opt.title}</div>
-                    <div className="text-xs text-surface-400">{opt.subtitle}</div>
+                  <div className="space-y-0.5">
+                    <div className="text-sm font-bold text-[#111827] font-sans">{opt.title}</div>
+                    <div className="text-xs text-[#64748B]">{opt.subtitle}</div>
                   </div>
                   <div
-                    className={`flex h-6 w-6 items-center justify-center rounded-lg border shrink-0 mt-0.5 ${
+                    className={`flex h-5 w-5 items-center justify-center rounded-lg border shrink-0 mt-0.5 ${
                       isSelected
-                        ? "border-teal-400 bg-teal-500 text-surface-950"
-                        : "border-surface-700 bg-surface-900"
+                        ? "border-teal-600 bg-teal-600 text-white"
+                        : "border-[#CBD5E1] bg-white"
                     }`}
                   >
-                    {isSelected && <Check className="h-3.5 w-3.5 stroke-[3]" />}
+                    {isSelected && <Check className="h-3 w-3 stroke-[3]" />}
                   </div>
                 </button>
               );
@@ -297,16 +291,16 @@ export function AdvisorWizard({ initialValues, onSubmit }: AdvisorWizardProps) {
 
       {/* STEP 4: RAM Preference */}
       {step === 4 && (
-        <div className="space-y-6 animate-fadeIn">
+        <div className="space-y-5 animate-fadeIn">
           <div>
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-400 mb-1">
+            <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-indigo-700 mb-1">
               <Layers className="h-4 w-4" />
               <span>Step 4 — RAM Preference</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white font-sans">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#111827] font-sans">
               How much memory (RAM) do you need?
             </h2>
-            <p className="text-xs sm:text-sm text-surface-400 mt-1">
+            <p className="text-xs sm:text-sm text-[#64748B] mt-0.5">
               More RAM ensures smooth performance when running multiple apps and tabs.
             </p>
           </div>
@@ -319,24 +313,24 @@ export function AdvisorWizard({ initialValues, onSubmit }: AdvisorWizardProps) {
                   key={opt.id}
                   type="button"
                   onClick={() => setRamPreference(opt.id)}
-                  className={`p-4 rounded-2xl border text-left transition-all flex items-start justify-between gap-3 ${
+                  className={`p-4 rounded-2xl border text-left transition-all flex items-start justify-between gap-3 shadow-xs ${
                     isSelected
-                      ? "border-indigo-400 bg-indigo-500/15 shadow-md shadow-indigo-500/10 text-white"
-                      : "border-surface-800 bg-surface-950/60 text-surface-300 hover:border-surface-700 hover:text-white"
+                      ? "border-indigo-500 bg-indigo-50/80 text-[#111827] shadow-sm ring-1 ring-indigo-500/30"
+                      : "border-[#E2E8F0] bg-white text-[#334155] hover:border-indigo-300 hover:bg-slate-50"
                   }`}
                 >
-                  <div className="space-y-1">
-                    <div className="text-sm font-bold text-white font-sans">{opt.title}</div>
-                    <div className="text-xs text-surface-400">{opt.subtitle}</div>
+                  <div className="space-y-0.5">
+                    <div className="text-sm font-bold text-[#111827] font-sans">{opt.title}</div>
+                    <div className="text-xs text-[#64748B]">{opt.subtitle}</div>
                   </div>
                   <div
-                    className={`flex h-6 w-6 items-center justify-center rounded-full border shrink-0 mt-0.5 ${
+                    className={`flex h-5 w-5 items-center justify-center rounded-full border shrink-0 mt-0.5 ${
                       isSelected
-                        ? "border-indigo-400 bg-indigo-500 text-surface-950"
-                        : "border-surface-700 bg-surface-900"
+                        ? "border-indigo-600 bg-indigo-600 text-white"
+                        : "border-[#CBD5E1] bg-white"
                     }`}
                   >
-                    {isSelected && <Check className="h-3.5 w-3.5 stroke-[3]" />}
+                    {isSelected && <Check className="h-3 w-3 stroke-[3]" />}
                   </div>
                 </button>
               );
@@ -347,16 +341,16 @@ export function AdvisorWizard({ initialValues, onSubmit }: AdvisorWizardProps) {
 
       {/* STEP 5: GPU Preference */}
       {step === 5 && (
-        <div className="space-y-6 animate-fadeIn">
+        <div className="space-y-5 animate-fadeIn">
           <div>
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-400 mb-1">
+            <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-700 mb-1">
               <Sparkles className="h-4 w-4" />
               <span>Step 5 — Graphics (GPU) Preference</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white font-sans">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#111827] font-sans">
               Do you need a dedicated graphics card?
             </h2>
-            <p className="text-xs sm:text-sm text-surface-400 mt-1">
+            <p className="text-xs sm:text-sm text-[#64748B] mt-0.5">
               Integrated graphics are lighter and more battery-friendly; dedicated GPUs excel at 3D games and video editing.
             </p>
           </div>
@@ -369,24 +363,24 @@ export function AdvisorWizard({ initialValues, onSubmit }: AdvisorWizardProps) {
                   key={opt.id}
                   type="button"
                   onClick={() => setGpuPreference(opt.id)}
-                  className={`p-4 rounded-2xl border text-left transition-all flex items-start justify-between gap-3 ${
+                  className={`p-4 rounded-2xl border text-left transition-all flex items-start justify-between gap-3 shadow-xs ${
                     isSelected
-                      ? "border-amber-400 bg-amber-500/15 shadow-md shadow-amber-500/10 text-white"
-                      : "border-surface-800 bg-surface-950/60 text-surface-300 hover:border-surface-700 hover:text-white"
+                      ? "border-amber-500 bg-amber-50/80 text-[#111827] shadow-sm ring-1 ring-amber-500/30"
+                      : "border-[#E2E8F0] bg-white text-[#334155] hover:border-amber-300 hover:bg-slate-50"
                   }`}
                 >
-                  <div className="space-y-1">
-                    <div className="text-sm font-bold text-white font-sans">{opt.title}</div>
-                    <div className="text-xs text-surface-400">{opt.subtitle}</div>
+                  <div className="space-y-0.5">
+                    <div className="text-sm font-bold text-[#111827] font-sans">{opt.title}</div>
+                    <div className="text-xs text-[#64748B]">{opt.subtitle}</div>
                   </div>
                   <div
-                    className={`flex h-6 w-6 items-center justify-center rounded-full border shrink-0 mt-0.5 ${
+                    className={`flex h-5 w-5 items-center justify-center rounded-full border shrink-0 mt-0.5 ${
                       isSelected
-                        ? "border-amber-400 bg-amber-500 text-surface-950"
-                        : "border-surface-700 bg-surface-900"
+                        ? "border-amber-600 bg-amber-600 text-white"
+                        : "border-[#CBD5E1] bg-white"
                     }`}
                   >
-                    {isSelected && <Check className="h-3.5 w-3.5 stroke-[3]" />}
+                    {isSelected && <Check className="h-3 w-3 stroke-[3]" />}
                   </div>
                 </button>
               );
@@ -396,28 +390,24 @@ export function AdvisorWizard({ initialValues, onSubmit }: AdvisorWizardProps) {
       )}
 
       {/* Navigation Buttons */}
-      <div className="flex items-center justify-between pt-6 border-t border-surface-800 gap-4">
+      <div className="flex items-center justify-between pt-5 border-t border-[#E2E8F0] gap-4">
         {step > 1 ? (
-          <Button
+          <button
             type="button"
-            variant="outline"
-            size="md"
             onClick={handleBack}
-            className="border-surface-700 text-xs font-semibold"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-[#E2E8F0] bg-white text-xs font-semibold text-[#475569] hover:bg-slate-50 hover:text-[#111827] transition-all"
           >
             <ArrowLeft className="h-4 w-4" />
             <span>Back</span>
-          </Button>
+          </button>
         ) : (
           <div />
         )}
 
-        <Button
+        <button
           type="button"
-          variant="primary"
-          size="md"
           onClick={handleNext}
-          className="font-bold text-xs px-6 py-2.5 shadow-md shadow-brand-500/20"
+          className="inline-flex items-center gap-2 font-bold text-xs text-white bg-teal-600 hover:bg-teal-700 active:scale-98 rounded-xl px-6 py-2.5 transition-all shadow-md"
         >
           {step === 5 ? (
             <>
@@ -430,8 +420,8 @@ export function AdvisorWizard({ initialValues, onSubmit }: AdvisorWizardProps) {
               <ArrowRight className="h-4 w-4" />
             </>
           )}
-        </Button>
+        </button>
       </div>
-    </Card>
+    </div>
   );
 }

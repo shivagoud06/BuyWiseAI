@@ -12,9 +12,8 @@ import {
 } from "@/types";
 import {
   RotateCcw,
-  SlidersHorizontal,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
 } from "lucide-react";
 
 interface LaptopFiltersProps {
@@ -30,7 +29,7 @@ const PRICE_RANGES: { id: PriceRangeFilter; label: string; sub: string }[] = [
   { id: "under-40k", label: "Under ₹40,000", sub: "Budget" },
   { id: "40k-50k", label: "₹40,000 – ₹50,000", sub: "Value" },
   { id: "50k-75k", label: "₹50,000 – ₹75,000", sub: "Mid-Range" },
-  { id: "75k-100k", label: "₹75,000 – ₹1,00,000", sub: "High Performance" },
+  { id: "75k-100k", label: "₹75,000 – ₹1,00,000", sub: "Performance" },
   { id: "above-100k", label: "Above ₹1,00,000", sub: "Flagship" },
 ];
 
@@ -66,6 +65,32 @@ const USE_CASES: UseCaseType[] = [
   "Content Creation",
 ];
 
+// Reusable section header button
+function SectionHeader({
+  label,
+  isOpen,
+  onToggle,
+}: {
+  label: string;
+  isOpen: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      className="flex w-full items-center justify-between text-[11px] font-bold uppercase tracking-widest text-shop-muted mb-2.5 hover:text-shop-text transition-colors"
+    >
+      <span>{label}</span>
+      {isOpen ? (
+        <ChevronUp className="h-3.5 w-3.5 text-shop-muted" />
+      ) : (
+        <ChevronDown className="h-3.5 w-3.5 text-shop-muted" />
+      )}
+    </button>
+  );
+}
+
 export function LaptopFilters({
   filters,
   onChange,
@@ -77,8 +102,8 @@ export function LaptopFilters({
     useCase: true,
     brand: true,
     ram: true,
-    processor: true,
-    gpu: true,
+    processor: false,
+    gpu: false,
   });
 
   const toggleSection = (section: keyof typeof openSections) => {
@@ -136,43 +161,33 @@ export function LaptopFilters({
     filters.useCases.length;
 
   return (
-    <div className="space-y-5">
-      {/* Filter Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-surface-800">
-        <div className="flex items-center gap-2">
-          <SlidersHorizontal className="h-4 w-4 text-brand-400" />
-          <span className="font-semibold text-white text-sm">Filters</span>
-          {activeCount > 0 && (
-            <span className="rounded-full bg-brand-500/20 text-brand-400 text-[11px] font-semibold px-2 py-0.5">
-              {activeCount} active
-            </span>
-          )}
-        </div>
-        {activeCount > 0 && (
+    <div className="space-y-4">
+      {/* Filter Header row */}
+      {activeCount > 0 && (
+        <div className="flex items-center justify-between pb-3 border-b border-shop-border">
+          <span className="text-xs text-shop-muted font-medium">
+            <span className="font-bold text-shop-text">{activeCount}</span> active filter{activeCount !== 1 && "s"}
+          </span>
           <button
             type="button"
             onClick={onReset}
-            className="flex items-center gap-1 text-xs text-surface-400 hover:text-brand-400 transition-colors font-medium"
+            className="flex items-center gap-1 text-xs text-brand-600 hover:text-brand-700 font-semibold transition-colors"
           >
             <RotateCcw className="h-3 w-3" />
-            Reset all
+            Clear all
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* 1. Price Range */}
-      <div className="border-b border-surface-800/80 pb-4">
-        <button
-          type="button"
-          onClick={() => toggleSection("price")}
-          className="flex w-full items-center justify-between text-xs font-semibold uppercase tracking-wider text-surface-300 mb-2.5 hover:text-white"
-        >
-          <span>Price (Indian Rupees)</span>
-          {openSections.price ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-        </button>
-
+      <div className="border-b border-shop-border pb-4">
+        <SectionHeader
+          label="Price (INR)"
+          isOpen={openSections.price}
+          onToggle={() => toggleSection("price")}
+        />
         {openSections.price && (
-          <div className="space-y-1">
+          <div className="space-y-0.5">
             {PRICE_RANGES.map((range) => {
               const checked = filters.priceRanges.includes(range.id);
               return (
@@ -180,8 +195,8 @@ export function LaptopFilters({
                   key={range.id}
                   className={`flex items-center justify-between p-2 rounded-lg cursor-pointer text-xs font-medium transition-all ${
                     checked
-                      ? "bg-brand-500/15 text-white border border-brand-500/30"
-                      : "text-surface-300 hover:bg-surface-800/60 hover:text-white"
+                      ? "bg-brand-50 text-brand-700 border border-brand-200"
+                      : "text-shop-text hover:bg-gray-100 border border-transparent"
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
@@ -189,11 +204,13 @@ export function LaptopFilters({
                       type="checkbox"
                       checked={checked}
                       onChange={() => handlePriceToggle(range.id)}
-                      className="rounded border-surface-700 bg-surface-900 text-brand-500 focus:ring-brand-400 h-3.5 w-3.5"
+                      className="shop-checkbox rounded border-shop-border h-3.5 w-3.5"
                     />
                     <span>{range.label}</span>
                   </div>
-                  <span className="text-[10px] text-surface-500 font-normal">{range.sub}</span>
+                  <span className={`text-[10px] font-normal ${checked ? "text-brand-500" : "text-shop-muted"}`}>
+                    {range.sub}
+                  </span>
                 </label>
               );
             })}
@@ -202,16 +219,12 @@ export function LaptopFilters({
       </div>
 
       {/* 2. Use Case */}
-      <div className="border-b border-surface-800/80 pb-4">
-        <button
-          type="button"
-          onClick={() => toggleSection("useCase")}
-          className="flex w-full items-center justify-between text-xs font-semibold uppercase tracking-wider text-surface-300 mb-2.5 hover:text-white"
-        >
-          <span>Use Case</span>
-          {openSections.useCase ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-        </button>
-
+      <div className="border-b border-shop-border pb-4">
+        <SectionHeader
+          label="Use Case"
+          isOpen={openSections.useCase}
+          onToggle={() => toggleSection("useCase")}
+        />
         {openSections.useCase && (
           <div className="flex flex-wrap gap-1.5">
             {USE_CASES.map((uc) => {
@@ -221,10 +234,10 @@ export function LaptopFilters({
                   key={uc}
                   type="button"
                   onClick={() => handleUseCaseToggle(uc)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                  className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-all ${
                     checked
-                      ? "bg-brand-500 text-surface-950 border-brand-400 font-semibold shadow-sm"
-                      : "bg-surface-800/40 border-surface-700/60 text-surface-300 hover:bg-surface-800 hover:text-white"
+                      ? "bg-brand-500 text-white border-brand-500 shadow-sm"
+                      : "bg-white border-shop-border text-shop-text hover:border-brand-400 hover:text-brand-600 hover:bg-brand-50"
                   }`}
                 >
                   {uc}
@@ -236,16 +249,12 @@ export function LaptopFilters({
       </div>
 
       {/* 3. Brand */}
-      <div className="border-b border-surface-800/80 pb-4">
-        <button
-          type="button"
-          onClick={() => toggleSection("brand")}
-          className="flex w-full items-center justify-between text-xs font-semibold uppercase tracking-wider text-surface-300 mb-2.5 hover:text-white"
-        >
-          <span>Brand</span>
-          {openSections.brand ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-        </button>
-
+      <div className="border-b border-shop-border pb-4">
+        <SectionHeader
+          label="Brand"
+          isOpen={openSections.brand}
+          onToggle={() => toggleSection("brand")}
+        />
         {openSections.brand && (
           <div className="grid grid-cols-2 gap-1">
             {BRANDS.map((brand) => {
@@ -255,15 +264,15 @@ export function LaptopFilters({
                   key={brand}
                   className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer text-xs font-medium transition-all ${
                     checked
-                      ? "bg-brand-500/15 text-white border border-brand-500/30 font-semibold"
-                      : "text-surface-300 hover:bg-surface-800/60 hover:text-white"
+                      ? "bg-brand-50 text-brand-700 border border-brand-200"
+                      : "text-shop-text hover:bg-gray-100 border border-transparent"
                   }`}
                 >
                   <input
                     type="checkbox"
                     checked={checked}
                     onChange={() => handleBrandToggle(brand)}
-                    className="rounded border-surface-700 bg-surface-900 text-brand-500 focus:ring-brand-400 h-3.5 w-3.5"
+                    className="shop-checkbox rounded border-shop-border h-3.5 w-3.5"
                   />
                   <span>{brand}</span>
                 </label>
@@ -274,16 +283,12 @@ export function LaptopFilters({
       </div>
 
       {/* 4. RAM */}
-      <div className="border-b border-surface-800/80 pb-4">
-        <button
-          type="button"
-          onClick={() => toggleSection("ram")}
-          className="flex w-full items-center justify-between text-xs font-semibold uppercase tracking-wider text-surface-300 mb-2.5 hover:text-white"
-        >
-          <span>RAM</span>
-          {openSections.ram ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-        </button>
-
+      <div className="border-b border-shop-border pb-4">
+        <SectionHeader
+          label="RAM"
+          isOpen={openSections.ram}
+          onToggle={() => toggleSection("ram")}
+        />
         {openSections.ram && (
           <div className="grid grid-cols-3 gap-1.5">
             {RAM_OPTIONS.map((item) => {
@@ -293,10 +298,10 @@ export function LaptopFilters({
                   key={item.size}
                   type="button"
                   onClick={() => handleRamToggle(item.size)}
-                  className={`p-2 rounded-lg text-xs font-medium border text-center transition-all ${
+                  className={`py-1.5 rounded-lg text-xs font-semibold border text-center transition-all ${
                     checked
-                      ? "bg-brand-500 text-surface-950 border-brand-400 font-semibold shadow-sm"
-                      : "bg-surface-800/40 border-surface-700/60 text-surface-300 hover:bg-surface-800 hover:text-white"
+                      ? "bg-brand-500 text-white border-brand-500 shadow-sm"
+                      : "bg-white border-shop-border text-shop-text hover:border-brand-400 hover:text-brand-600 hover:bg-brand-50"
                   }`}
                 >
                   {item.label}
@@ -308,18 +313,14 @@ export function LaptopFilters({
       </div>
 
       {/* 5. Processor */}
-      <div className="border-b border-surface-800/80 pb-4">
-        <button
-          type="button"
-          onClick={() => toggleSection("processor")}
-          className="flex w-full items-center justify-between text-xs font-semibold uppercase tracking-wider text-surface-300 mb-2.5 hover:text-white"
-        >
-          <span>Processor</span>
-          {openSections.processor ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-        </button>
-
+      <div className="border-b border-shop-border pb-4">
+        <SectionHeader
+          label="Processor"
+          isOpen={openSections.processor}
+          onToggle={() => toggleSection("processor")}
+        />
         {openSections.processor && (
-          <div className="space-y-1">
+          <div className="space-y-0.5">
             {PROCESSOR_FAMILIES.map((proc) => {
               const checked = filters.processorFamilies.includes(proc);
               return (
@@ -327,15 +328,15 @@ export function LaptopFilters({
                   key={proc}
                   className={`flex items-center gap-2 p-1.5 rounded-lg cursor-pointer text-xs font-medium transition-all ${
                     checked
-                      ? "bg-brand-500/15 text-white border border-brand-500/30"
-                      : "text-surface-300 hover:bg-surface-800/60 hover:text-white"
+                      ? "bg-brand-50 text-brand-700 border border-brand-200"
+                      : "text-shop-text hover:bg-gray-100 border border-transparent"
                   }`}
                 >
                   <input
                     type="checkbox"
                     checked={checked}
                     onChange={() => handleProcessorToggle(proc)}
-                    className="rounded border-surface-700 bg-surface-900 text-brand-500 focus:ring-brand-400 h-3.5 w-3.5"
+                    className="shop-checkbox rounded border-shop-border h-3.5 w-3.5"
                   />
                   <span>{proc}</span>
                 </label>
@@ -347,17 +348,13 @@ export function LaptopFilters({
 
       {/* 6. GPU */}
       <div>
-        <button
-          type="button"
-          onClick={() => toggleSection("gpu")}
-          className="flex w-full items-center justify-between text-xs font-semibold uppercase tracking-wider text-surface-300 mb-2.5 hover:text-white"
-        >
-          <span>GPU</span>
-          {openSections.gpu ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-        </button>
-
+        <SectionHeader
+          label="GPU"
+          isOpen={openSections.gpu}
+          onToggle={() => toggleSection("gpu")}
+        />
         {openSections.gpu && (
-          <div className="space-y-1">
+          <div className="space-y-0.5">
             {GPU_CATEGORIES.map((gpu) => {
               const checked = filters.gpuCategories.includes(gpu.id);
               return (
@@ -365,15 +362,15 @@ export function LaptopFilters({
                   key={gpu.id}
                   className={`flex items-center gap-2 p-1.5 rounded-lg cursor-pointer text-xs font-medium transition-all ${
                     checked
-                      ? "bg-brand-500/15 text-white border border-brand-500/30"
-                      : "text-surface-300 hover:bg-surface-800/60 hover:text-white"
+                      ? "bg-brand-50 text-brand-700 border border-brand-200"
+                      : "text-shop-text hover:bg-gray-100 border border-transparent"
                   }`}
                 >
                   <input
                     type="checkbox"
                     checked={checked}
                     onChange={() => handleGpuToggle(gpu.id)}
-                    className="rounded border-surface-700 bg-surface-900 text-brand-500 focus:ring-brand-400 h-3.5 w-3.5"
+                    className="shop-checkbox rounded border-shop-border h-3.5 w-3.5"
                   />
                   <span>{gpu.label}</span>
                 </label>
