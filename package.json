@@ -36,6 +36,7 @@
     "test:phase45a": "tsx scratch/verify-phase45a.ts",
     "test:phase47": "tsx scratch/verify-phase47.ts",
     "test:phase48": "tsx scratch/verify-phase48.ts",
+    "test:phase49": "tsx scratch/verify-phase49.ts",
     "test:catalog": "tsx scratch/verify-catalog-render.ts"
   },
   "dependencies": {
