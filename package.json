@@ -37,7 +37,8 @@
     "test:phase47": "tsx scratch/verify-phase47.ts",
     "test:phase48": "tsx scratch/verify-phase48.ts",
     "test:phase49": "tsx scratch/verify-phase49.ts",
-    "test:catalog": "tsx scratch/verify-catalog-render.ts"
+    "test:catalog": "tsx scratch/verify-catalog-render.ts",
+    "test:mobile-sidebar": "tsx scratch/verify-mobile-sidebar.ts"
   },
   "dependencies": {
     "clsx": "^2.1.1",

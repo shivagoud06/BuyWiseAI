@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Info, Mail } from "lucide-react";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { siteConfig } from "@/config/site";
@@ -9,8 +10,13 @@ import { FeedbackModal } from "@/components/feedback/FeedbackModal";
 import { Logo } from "@/components/brand/Logo";
 
 export function Footer() {
+  const pathname = usePathname();
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const currentYear = new Date().getFullYear();
+
+  if (pathname?.startsWith("/hub")) {
+    return null;
+  }
 
   return (
     <footer className="border-t border-[#E2E8F0] bg-slate-50 text-[#64748B]">

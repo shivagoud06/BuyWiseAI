@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Sparkles,
   Menu,
@@ -25,6 +26,7 @@ import {
 import { Logo } from "@/components/brand/Logo";
 
 export function Navbar() {
+  const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
@@ -39,6 +41,10 @@ export function Navbar() {
       // safe fallback
     }
   }, [alertsOpen, notifSettingsOpen]);
+
+  if (pathname?.startsWith("/hub")) {
+    return null;
+  }
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-[#E2E8F0] bg-white/95 backdrop-blur-xl shadow-xs transition-all">

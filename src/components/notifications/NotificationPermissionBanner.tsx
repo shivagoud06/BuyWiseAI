@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { Bell, ShieldCheck, X } from "lucide-react";
 import {
   getNotificationConsent,
@@ -12,10 +13,12 @@ import { NotificationSettingsModal } from "./NotificationSettingsModal";
 const DISMISS_SESSION_KEY = "buywise_notif_banner_dismissed_session";
 
 export function NotificationPermissionBanner() {
+  const pathname = usePathname();
   const [isVisible, setIsVisible] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   useEffect(() => {
+    if (pathname?.startsWith("/hub")) return;
     try {
       if (typeof window !== "undefined") {
         const isDismissed = window.sessionStorage?.getItem(DISMISS_SESSION_KEY) === "true";
@@ -29,6 +32,10 @@ export function NotificationPermissionBanner() {
       // safe fallback
     }
   }, []);
+
+  if (pathname?.startsWith("/hub")) {
+    return null;
+  }
 
   if (!isVisible) {
     return (

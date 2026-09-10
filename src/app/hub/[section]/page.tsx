@@ -1,0 +1,268 @@
+"use client";
+
+import React, { useState } from "react";
+import { useParams } from "next/navigation";
+import Link from "next/link";
+import {
+  Tag,
+  Database,
+  BellRing,
+  Share2,
+  Workflow,
+  Sliders,
+  DollarSign,
+  BarChart3,
+  TrendingUp,
+  Link2,
+  Wallet,
+  History,
+  Server,
+  Terminal,
+  Settings,
+  Sparkles,
+  CheckCircle2,
+  RefreshCw,
+  Clock,
+  ArrowRight,
+  ExternalLink,
+  ChevronRight,
+  AlertCircle,
+  Play,
+  Send,
+  Trash2,
+  Activity,
+} from "lucide-react";
+import { HUB_NAV_GROUPS } from "@/config/hubNavigation";
+
+export default function HubSectionPage() {
+  const params = useParams();
+  const sectionKey = (params?.section as string) || "overview";
+
+  // Find matching nav item
+  const allItems = HUB_NAV_GROUPS.flatMap((g) => g.items);
+  const currentItem =
+    allItems.find((it) => it.href === `/hub/${sectionKey}` || it.id === sectionKey) || {
+      id: sectionKey,
+      label: sectionKey.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+      href: `/hub/${sectionKey}`,
+      icon: Sliders,
+    };
+
+  const Icon = currentItem.icon;
+
+  // Mock interactive state for Deal Alerts Drafts
+  const [drafts, setDrafts] = useState([
+    {
+      id: "draft-1",
+      title: "Apple MacBook Air M2 — ₹82,990 (Lowest 90-Day Price)",
+      retailer: "Flipkart",
+      discount: "17% OFF",
+      status: "Ready to Broadcast",
+      channels: ["Telegram", "WhatsApp", "Push Notifications"],
+      time: "10 mins ago",
+    },
+    {
+      id: "draft-2",
+      title: "ASUS ROG Zephyrus G14 — ₹1,34,990 (Price Drop ₹15,000)",
+      retailer: "Amazon",
+      discount: "14% OFF",
+      status: "Review Required",
+      channels: ["Telegram"],
+      time: "28 mins ago",
+    },
+    {
+      id: "draft-3",
+      title: "Lenovo LOQ 15 RTX 4060 — ₹78,990 + HDFC ₹4,000 Instant Card Off",
+      retailer: "Official Store",
+      discount: "22% OFF",
+      status: "Ready to Broadcast",
+      channels: ["Telegram", "Push Notifications"],
+      time: "1 hour ago",
+    },
+  ]);
+
+  const [broadcastMessage, setBroadcastMessage] = useState<string | null>(null);
+
+  const handleBroadcast = (id: string, title: string) => {
+    setDrafts((prev) => prev.filter((d) => d.id !== id));
+    setBroadcastMessage(`Successfully broadcasted: "${title.slice(0, 40)}..."`);
+    setTimeout(() => setBroadcastMessage(null), 3500);
+  };
+
+  return (
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
+      {/* Section Breadcrumb & Header */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-1.5 text-xs text-[#64748B]">
+          <Link href="/hub" className="hover:text-[#0EA5A4] transition-colors">
+            AutoBot HUB
+          </Link>
+          <ChevronRight className="h-3 w-3" />
+          <span className="text-[#111827] font-semibold">{currentItem.label}</span>
+        </div>
+
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#E2E8F0]">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#E6FFFE] text-[#0EA5A4] border border-[#99F6F3]">
+              <Icon className="h-5 w-5" />
+            </div>
+            <div>
+              <h1 className="text-xl sm:text-2xl font-extrabold text-[#111827] font-sans">
+                {currentItem.label}
+              </h1>
+              <p className="text-xs sm:text-sm text-[#64748B]">
+                AutoBot Operations Center module for {currentItem.label.toLowerCase()}.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setBroadcastMessage("Module refreshed with latest live data.");
+                setTimeout(() => setBroadcastMessage(null), 2500);
+              }}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-[#475569] bg-white border border-[#E2E8F0] hover:bg-slate-50 transition-colors shadow-xs"
+            >
+              <RefreshCw className="h-3.5 w-3.5 text-[#0EA5A4]" />
+              <span>Refresh</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Broadcast alert */}
+      {broadcastMessage && (
+        <div className="p-3.5 rounded-xl bg-[#DCFCE7] border border-[#BBF7D0] text-[#16A34A] text-xs font-bold animate-fadeIn">
+          ✓ {broadcastMessage}
+        </div>
+      )}
+
+      {/* Custom Content for Deal Alerts Drafts */}
+      {sectionKey === "deal-alerts-drafts" ? (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-bold text-[#111827]">
+              Pending Draft Alerts ({drafts.length})
+            </h2>
+            <span className="text-xs text-[#64748B]">
+              Auto-generated by price-drop detector
+            </span>
+          </div>
+
+          {drafts.length === 0 ? (
+            <div className="p-8 text-center bg-white rounded-2xl border border-[#E2E8F0] text-xs text-[#64748B]">
+              All draft alerts have been broadcasted! Check back when new price drops occur.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {drafts.map((draft) => (
+                <div
+                  key={draft.id}
+                  className="p-4 sm:p-5 rounded-2xl bg-white border border-[#E2E8F0] shadow-xs hover:border-[#CBD5E1] transition-all space-y-3"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="px-2 py-0.5 rounded-md bg-[#DCFCE7] text-[#16A34A] text-xs font-bold border border-[#BBF7D0]">
+                        {draft.discount}
+                      </span>
+                      <span className="px-2 py-0.5 rounded-md bg-slate-100 text-[#475569] text-xs font-semibold">
+                        {draft.retailer}
+                      </span>
+                      <span className="text-xs text-[#94A3B8] flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        {draft.time}
+                      </span>
+                    </div>
+
+                    <span
+                      className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
+                        draft.status === "Ready to Broadcast"
+                          ? "bg-teal-50 text-[#0EA5A4] border border-teal-200"
+                          : "bg-amber-50 text-amber-700 border border-amber-200"
+                      }`}
+                    >
+                      {draft.status}
+                    </span>
+                  </div>
+
+                  <h3 className="text-sm sm:text-base font-bold text-[#111827]">
+                    {draft.title}
+                  </h3>
+
+                  <div className="flex flex-wrap items-center gap-1.5 text-xs text-[#64748B]">
+                    <span className="font-semibold">Target Channels:</span>
+                    {draft.channels.map((ch) => (
+                      <span
+                        key={ch}
+                        className="px-2 py-0.5 rounded-md bg-slate-100 text-[#334155] text-[11px] font-medium"
+                      >
+                        {ch}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="pt-2 border-t border-[#E2E8F0] flex items-center justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleBroadcast(draft.id, draft.title)}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-[#0EA5A4] hover:bg-[#087F7E] transition-all shadow-xs"
+                    >
+                      <Send className="h-3.5 w-3.5" />
+                      <span>Broadcast Alert</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : (
+        /* Standard Section View */
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="p-5 rounded-2xl bg-white border border-[#E2E8F0] shadow-xs space-y-3">
+            <div className="flex items-center gap-2 text-xs font-bold text-[#0EA5A4] uppercase tracking-wider">
+              <Sparkles className="h-4 w-4" />
+              <span>Live Telemetry & Controls</span>
+            </div>
+            <h3 className="text-base font-bold text-[#111827]">
+              {currentItem.label} Module Status
+            </h3>
+            <p className="text-xs text-[#64748B] leading-relaxed">
+              Real-time operational status for {currentItem.label}. Synchronized with BuyWise AI background ingestion queue and distributed worker nodes.
+            </p>
+            <div className="pt-2 flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-[#DCFCE7] text-[#16A34A] border border-[#BBF7D0]">
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                Operational
+              </span>
+            </div>
+          </div>
+
+          <div className="p-5 rounded-2xl bg-white border border-[#E2E8F0] shadow-xs space-y-3">
+            <div className="flex items-center gap-2 text-xs font-bold text-[#2563EB] uppercase tracking-wider">
+              <Activity className="h-4 w-4" />
+              <span>Module Configuration</span>
+            </div>
+            <h3 className="text-base font-bold text-[#111827]">Active Pipeline Node</h3>
+            <div className="space-y-1.5 text-xs text-[#475569]">
+              <div className="flex justify-between py-1 border-b border-slate-100">
+                <span>Route Path:</span>
+                <code className="text-[#0EA5A4] font-bold">{currentItem.href}</code>
+              </div>
+              <div className="flex justify-between py-1 border-b border-slate-100">
+                <span>Sync Interval:</span>
+                <span className="font-semibold">60 seconds</span>
+              </div>
+              <div className="flex justify-between py-1">
+                <span>Automation Status:</span>
+                <span className="text-[#16A34A] font-bold">Enabled</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
